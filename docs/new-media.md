@@ -151,12 +151,6 @@ pageClass: routes
 
 </Route>
 
-## Aljazeera 半岛网
-
-### 新闻
-
-<Route author="nczitzk" example="/aljazeera/news" path="/aljazeera/news"/>
-
 ## AppleInsider
 
 ### 分类
@@ -529,6 +523,12 @@ Country
 ### Blog
 
 <Route author="nczitzk" example="/disinformationindex/blog" path="/disinformationindex/blog"/>
+
+## Good.news
+
+### 今日要闻
+
+<Route author="nczitzk" example="/good" path="/good" />
 
 ## GQ
 
@@ -1359,7 +1359,7 @@ IPFS 网关有可能失效，那时候换成其他网关。
 
 ### The Verge
 
-<Route author="HenryQW" example="/verge" path="/verge">
+<Route author="HenryQW" example="/theverge" path="/theverge">
 
 通过提取文章全文，以提供比官方源更佳的阅读体验.
 
@@ -1818,7 +1818,7 @@ Supported sub-sites:
 
 ### 首页
 
-<Route author="nczitzk" example="/dedao/list/年度日更" path="/dedao/list/:caty?" :paramsDesc="['分类名，默认为年度日更']"/>
+<Route author="nczitzk" example="/dedao/list/年度日更" path="/dedao/list/:category?" :paramsDesc="['分类名，默认为年度日更']"/>
 
 ### 新闻
 
@@ -1834,7 +1834,17 @@ Supported sub-sites:
 
 ### 知识城邦
 
-<Route author="nczitzk" example="/dedao/knowledge" path="/dedao/knowledge/:topic?/:type?" :paramsDesc="['话题 id，可在话题页 URL 中找到', '分享类型，`true` 指精选，`false` 指最新，默认为精选']"/>
+<Route author="nczitzk" example="/dedao/knowledge" path="/dedao/knowledge/:topic?/:type?" :paramsDesc="['话题 id，可在对应话题页 URL 中找到', '分享类型，`true` 指精选，`false` 指最新，默认为精选']"/>
+
+### 用户主页
+
+<Route author="nczitzk" example="/dedao/user/VkA5OqLX4RyGxmZRNBMlwBrDaJQ9og" path="/dedao/user/:id/:type?" :paramsDesc="['用户 id，可在对应用户主页 URL 中找到', '类型，见下表，默认为`0`，即动态']">
+
+| 动态 | 书评 | 视频 |
+| -- | -- | -- |
+| 0  | 7  | 12 |
+
+</Route>
 
 ## 电动邦
 
@@ -2150,6 +2160,20 @@ Type 栏目：
 </Route>
 
 ## 凤凰网
+
+### 资讯
+
+<Route author="nczitzk" example="/ifeng/news" path="/ifeng/news/:path?" :paramsDesc="['路径，对应分类资讯页 URL 路径，默认为空']">
+
+::: tip 提示
+
+路径处填写对应页面 URL 中 `https://news.ifeng.com/` 后的字段。下面是一个例子。
+
+若订阅 [大湾区\_资讯\_凤凰网](https://news.ifeng.com/shanklist/3-305565-) 则将对应页面 URL <https://news.ifeng.com/shanklist/3-305565-> 中 `https://news.ifeng.com/` 后的字段 `shanklist/3-305565-` 作为路径填入。此时路由为 [`/ifeng/news/shanklist/3-305565-`](https://rsshub.app/ifeng/news/shanklist/3-305565-)
+
+:::
+
+</Route>
 
 ### 大风号
 
@@ -2923,6 +2947,18 @@ column 为 third 时可选的 category:
 | 公司新闻 | 漏洞披露 | 技术研究     |
 | ---- | ---- | -------- |
 | news | vul  | research |
+
+</Route>
+
+## 貓奴日常
+
+### 分類
+
+<Route author="TonyRL" example="/thecatcity" path="/thecatcity/:term?" :paramsDesc="['見下表，留空為全部文章']" radar="1" rssbud="1">
+
+| 貓物分享 | 貓咪新聞 | 養貓大全 | 貓奴景點 | 新手養貓教學 |
+| ---- | ---- | ---- | ---- | ------ |
+| 1    | 2    | 3    | 4    | 5      |
 
 </Route>
 

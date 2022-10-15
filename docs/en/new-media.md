@@ -762,7 +762,9 @@ Compared to the official one, this feed:
 
 ## The Verge
 
-<RouteEn author="HenryQW" example="/verge" path="/verge">
+### The Verge
+
+<RouteEn author="HenryQW" example="/theverge" path="/theverge">
 
 Provides a better reading experience (full text articles) over the official one.
 
