@@ -12,6 +12,12 @@
 [![Test coverage](https://img.shields.io/codecov/c/github/DIYgod/RSSHub.svg?style=flat-square&logo=codecov)](https://app.codecov.io/gh/DIYgod/RSSHub/branch/master)
 [![Foresight Docs](https://api-public.service.runforesight.com/api/v1/badge/success?repoId=5da20e56-cecf-4b05-9bcd-cab097fb2dca)](https://docs.runforesight.com/)
 
+
+## 自建
+1. 毛怪俱乐部 发帖 rss         
+    https://rss-hub-xi-six.vercel.app/hanser/mgclub/getPostsByUid/:uid
+    举例：https://rss-hub-xi-six.vercel.app/hanser/mgclub/getPostsByUid/1
+
 ## Introduction
 
 RSSHub is an open source, easy to use, and extensible RSS feed generator. It's capable of generating RSS feeds from pretty much everything.
