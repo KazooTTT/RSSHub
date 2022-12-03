@@ -15,7 +15,7 @@
 
 ## 自建
 1. 毛怪俱乐部 发帖 rss         
-    https://rss-hub-xi-six.vercel.app/hanser/mgclub/getPostsByUid/:uid
+    https://rss-hub-xi-six.vercel.app/hanser/mgclub/getPostsByUid/:uid          
     举例：https://rss-hub-xi-six.vercel.app/hanser/mgclub/getPostsByUid/1
 
 ## Introduction
