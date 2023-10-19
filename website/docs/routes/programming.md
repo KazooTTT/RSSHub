@@ -12,51 +12,51 @@
 
 You have the option to utilize the main heading or use individual categories as topics for the path.
 
-| **Code**                | _code_                  |
-|-------------------------|-------------------------|
+| **Code**                    | _code_                    |
+| --------------------------- | ------------------------- |
 | **Application Development** | _application-development_ |
-| **Browsers**             | _browsers_              |
-| **CSS**                  | _css_                   |
-| **HTML**                 | _html_                  |
-| **JavaScript**           | _javascript_            |
-| **The Server Side**      | _the-server-side_       |
+| **Browsers**                | _browsers_                |
+| **CSS**                     | _css_                     |
+| **HTML**                    | _html_                    |
+| **JavaScript**              | _javascript_              |
+| **The Server Side**         | _the-server-side_         |
 
-| **Content**             | _content_               |
-|-------------------------|-------------------------|
-| **Community**           | _community_             |
-| **Content Strategy**    | _content-strategy_      |
-| **Writing**             | _writing_               |
+| **Content**          | _content_          |
+| -------------------- | ------------------ |
+| **Community**        | _community_        |
+| **Content Strategy** | _content-strategy_ |
+| **Writing**          | _writing_          |
 
-| **Design**              | _design_                |
-|-------------------------|-------------------------|
-| **Brand Identity**      | _brand-identity_        |
-| **Graphic Design**      | _graphic-design_        |
-| **Layout & Grids**      | _layout-grids_          |
-| **Mobile/Multidevice**  | _mobile-multidevice_    |
-| **Responsive Design**   | _responsive-design_     |
+| **Design**                 | _design_               |
+| -------------------------- | ---------------------- |
+| **Brand Identity**         | _brand-identity_       |
+| **Graphic Design**         | _graphic-design_       |
+| **Layout & Grids**         | _layout-grids_         |
+| **Mobile/Multidevice**     | _mobile-multidevice_   |
+| **Responsive Design**      | _responsive-design_    |
 | **Typography & Web Fonts** | _typography-web-fonts_ |
 
-| **Industry & Business** | _industry-business_     |
-|-------------------------|-------------------------|
-| **Business**            | _business_              |
-| **Career**              | _career_                |
-| **Industry**            | _industry_              |
-| **State of the Web**    | _state-of-the-web_      |
+| **Industry & Business** | _industry-business_ |
+| ----------------------- | ------------------- |
+| **Business**            | _business_          |
+| **Career**              | _career_            |
+| **Industry**            | _industry_          |
+| **State of the Web**    | _state-of-the-web_  |
 
-| **Process**             | _process_               |
-|-------------------------|-------------------------|
-| **Creativity**          | _creativity_            |
-| **Project Management**  | _project-management_    |
-| **Web Strategy**        | _web-strategy_          |
-| **Workflow & Tools**    | _workflow-tools_        |
+| **Process**            | _process_            |
+| ---------------------- | -------------------- |
+| **Creativity**         | _creativity_         |
+| **Project Management** | _project-management_ |
+| **Web Strategy**       | _web-strategy_       |
+| **Workflow & Tools**   | _workflow-tools_     |
 
-| **User Experience**     | _user-experience_       |
-|-------------------------|-------------------------|
-| **Accessibility**       | _accessibility_         |
+| **User Experience**          | _user-experience_          |
+| ---------------------------- | -------------------------- |
+| **Accessibility**            | _accessibility_            |
 | **Information Architecture** | _information-architecture_ |
-| **Interaction Design**  | _interaction-design_    |
-| **Usability**           | _usability_             |
-| **User Research**       | _user-research_         |
+| **Interaction Design**       | _interaction-design_       |
+| **Usability**                | _usability_                |
+| **User Research**            | _user-research_            |
 
 </Route>
 
@@ -79,6 +79,24 @@ You have the option to utilize the main heading or use individual categories as 
 <Route author="ImSingee" example="/algocasts" path="/algocasts" radar="1" rssbud="1">
 
 > AlgoCasts 需要付费订阅，RSS 仅做更新提醒，不含付费内容.
+
+</Route>
+
+## AlternativeTo {#alternativeto}
+
+### Software Alternatives {#alternativeto-software-alternatives}
+
+<Route author="JimenezLi" example="/alternativeto/software/cpp" path="/alternativeto/software/:name/:routeParams?" paramsDesc={['Software name', 'Filters of software type']} puppeteer="1" radar="1">
+
+> routeParms can be copied from original site URL, example: `/alternativeto/software/cpp/license=opensource&platform=windows`
+
+</Route>
+
+### Platform Software {#alternativeto-platform-software}
+
+<Route author="JimenezLi" example="/alternativeto/platform/firefox" path="/alternativeto/platform/:name/:routeParams?" paramsDesc={['Platform name', 'Filters of software type']} puppeteer="1" radar="1">
+
+> routeParms can be copied from original site URL, example: `/alternativeto/platform/firefox/license=free`
 
 </Route>
 
@@ -155,7 +173,7 @@ Category
 <Route author="Fatpandac" example="/cncf" path="/cncf/:cate?" radar="1" rssbud="1" paramsDesc={['blog by default']}>
 
 | Blog | News | Announcements | Reports |
-|------|------|---------------|---------|
+| ---- | ---- | ------------- | ------- |
 | blog | news | announcements | reports |
 
 </Route>
@@ -316,6 +334,10 @@ For instance, the `/github/topics/framework/l=php&o=desc&s=stars` route will gen
 
 <Route author="hashman TonyRL" example="/github/pull/DIYgod/RSSHub" path="/github/pull/:user/:repo/:state?/:labels?" paramsDesc={['User name', 'Repo name', 'the state of pull requests. Can be either `open`, `closed`, or `all`. Default: `open`.', 'a list of comma separated label names']} radar="1" rssbud="1"/>
 
+### Repo Pulse {#github-repo-pulse}
+
+<Route author="jameschensmith" example="/github/pulse/DIYgod/RSSHub" path="/github/pulse/:user/:repo/:period?" paramsDesc={['User name', 'Repo name', 'Time frame, selected from a repository\'s Pulse/Insights page. Possible values are: `daily`, `halfweekly`, `weekly`, or `monthly`. Default: `weekly`. If your RSS client supports it, consider aligning the polling frequency of the feed to the period.']} radar="1" rssbud="1"/>
+
 ### User Followers {#github-user-followers}
 
 <Route author="HenryQW" path="/github/user/followers/:user" example="/github/user/followers/HenryQW" paramsDesc={['GitHub username']} radar="1" rssbud="1"/>
@@ -367,7 +389,7 @@ For instance, the `/github/topics/framework/l=php&o=desc&s=stars` route will gen
 
 <Route author="zoenglinghou" example="/github/contributors/DIYgod/RSSHub" path="/github/contributors/:user/:repo/:order?/:anon?" paramsDesc={['User name','Repo name','Sort order by commit numbers, desc and asc (descending by default)','Show anonymous users. Defaults to no, use any values for yes.']} radar="1" rssbud="1"/>
 
-### Issue / Pull Request comments {#github-issue-%2F-pull-request-comments}
+### Issue / Pull Request comments {#github-issue-pull-request-comments}
 
 <Route author="TonyRL FliegendeWurst" example="/github/comments/DIYgod/RSSHub/8116" path="/github/comments/:user/:repo/:number?" paramsDesc={['User / Org name', 'Repo name', 'Issue or pull number (if omitted: all)']} radar="1" rssbud="1"/>
 
@@ -429,13 +451,18 @@ For instance, the `/github/topics/framework/l=php&o=desc&s=stars` route will gen
 
 ## GoCN {#gocn}
 
-### 文章 {#gocn-wen-zhang}
+### 最新动态 {#gocn-zui-xin-dong-tai}
 
-<Route author="AtlanCI CcccFz" example="/gocn" path="/gocn" radar="1" rssbud="1"/>
+<Route author="AtlanCI" example="/gocn/news" path="/gocn/news" radar="1" rssbud="1"/>
+
+### 每日新闻 {#gocn-mei-ri-xin-wen}
+
+<Route author="AtlanCI CcccFz" example="/gocn/topics" path="/gocn/topics" radar="1" rssbud="1"/>
 
 ### 招聘 {#gocn-zhao-pin}
 
-<Route author="CcccFz" example="/gocn/jobs" path="/gocn/jobs" radar="1" rssbud="1"/>
+<Route author="AtlanCI CcccFz" example="/gocn/jobs" path="/gocn/jobs" radar="1" rssbud="1"/>
+
 
 ## Hacker News {#hacker-news}
 
@@ -472,6 +499,13 @@ Subscribe to the updates (threads and submission) from a paritcular Hacker News 
 ### Profile {#hackmd-profile}
 
 <Route author="Yukaii kaiix" example="/hackmd/profile/hackmd" path="/hackmd/profile/:path" paramsDesc={['userpath or teampath']} radar="1"/>
+
+
+## HackYourNews {#hackyournews}
+
+### Index {#hackyournews-index}
+
+<Route author="ftiasch" example="/hackyournews" path="/hackyournews" />
 
 ## HelloGitHub {#hellogithub}
 
@@ -786,9 +820,9 @@ Subscribe to the updates (threads and submission) from a paritcular Hacker News 
 <Route author="fengkx" example="/scala/blog/posts" path="/scala/blog/:part?" paramsDesc={['part parmater can be found in the url of blog']} >
 </Route>
 
-## SecWiki - 安全维基 {#secwiki---an-quan-wei-ji}
+## SecWiki - 安全维基 {#secwiki-an-quan-wei-ji}
 
-### 最新周刊 {#secwiki---an-quan-wei-ji-zui-xin-zhou-kan}
+### 最新周刊 {#secwiki-an-quan-wei-ji-zui-xin-zhou-kan}
 
 <Route author="p7e4" example="/sec-wiki/weekly" path="/sec-wiki/weekly" />
 
@@ -816,41 +850,41 @@ Subscribe to the updates (threads and submission) from a paritcular Hacker News 
 
 <Route author="Rjnishant530" example="/smashingmagazine/react" path="/smashingmagazine/:category?" paramsDesc={['Find in URL or Table below']} radar="1">
 
-| **Category**         |                       |
-|----------------------|-----------------------|
-| Accessibility        | accessibility         |
-| Best practices       | best-practices       |
-| Business             | business              |
-| Career               | career                |
-| Checklists           | checklists            |
-| CSS                  | css                   |
-| Data Visualization   | data-visualization   |
-| Design               | design                |
-| Design Patterns      | design-patterns      |
-| Design Systems       | design-systems       |
-| E-Commerce           | e-commerce           |
-| Figma                | figma                 |
-| Freebies             | freebies              |
-| HTML                 | html                  |
-| Illustrator          | illustrator           |
-| Inspiration          | inspiration           |
-| JavaScript           | javascript           |
-| Mobile               | mobile                |
-| Performance          | performance           |
-| Privacy              | privacy               |
-| React                | react                 |
-| Responsive Design    | responsive-design    |
-| Round-Ups            | round-ups            |
-| SEO                  | seo                   |
-| Typography           | typography            |
-| Tools                | tools                 |
-| UI                   | ui                    |
-| Usability            | usability             |
-| UX                   | ux                    |
-| Vue                  | vue                   |
-| Wallpapers           | wallpapers            |
-| Web Design           | web-design            |
-| Workflow             | workflow              |
+| **Category**       |                    |
+| ------------------ | ------------------ |
+| Accessibility      | accessibility      |
+| Best practices     | best-practices     |
+| Business           | business           |
+| Career             | career             |
+| Checklists         | checklists         |
+| CSS                | css                |
+| Data Visualization | data-visualization |
+| Design             | design             |
+| Design Patterns    | design-patterns    |
+| Design Systems     | design-systems     |
+| E-Commerce         | e-commerce         |
+| Figma              | figma              |
+| Freebies           | freebies           |
+| HTML               | html               |
+| Illustrator        | illustrator        |
+| Inspiration        | inspiration        |
+| JavaScript         | javascript         |
+| Mobile             | mobile             |
+| Performance        | performance        |
+| Privacy            | privacy            |
+| React              | react              |
+| Responsive Design  | responsive-design  |
+| Round-Ups          | round-ups          |
+| SEO                | seo                |
+| Typography         | typography         |
+| Tools              | tools              |
+| UI                 | ui                 |
+| Usability          | usability          |
+| UX                 | ux                 |
+| Vue                | vue                |
+| Wallpapers         | wallpapers         |
+| Web Design         | web-design         |
+| Workflow           | workflow           |
 
 </Route>
 
@@ -862,7 +896,7 @@ Subscribe to the updates (threads and submission) from a paritcular Hacker News 
 
 ## ui.dev {#ui.dev}
 
-### BYTES - Your weekly dose of JS {#ui.dev-bytes---your-weekly-dose-of-js}
+### BYTES - Your weekly dose of JS {#ui.dev-bytes-your-weekly-dose-of-js}
 
 Staying informed on the JavaScript ecosystem has never been so entertaining. Delivered every Monday and Thursday, for free. https://bytes.dev/
 
@@ -930,7 +964,7 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 </Route>
 
-### 开发者社区 - 主题 {#a-li-yun-kai-fa-zhe-she-qu---zhu-ti}
+### 开发者社区 - 主题 {#a-li-yun-kai-fa-zhe-she-qu-zhu-ti}
 
 <Route author="umm233" example="/aliyun/developer/group/alitech" path="/aliyun/developer/group/:type" paramsDesc={['对应技术领域分类']} />
 
@@ -988,11 +1022,11 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 </Route>
 
-### 智源社区 - 活动 {#bei-jing-zhi-yuan-ren-gong-zhi-neng-yan-jiu-yuan-zhi-yuan-she-qu---huo-dong}
+### 智源社区 - 活动 {#bei-jing-zhi-yuan-ren-gong-zhi-neng-yan-jiu-yuan-zhi-yuan-she-qu-huo-dong}
 
 <Route author="TonyRL" example="/baai/hub/events" path="/baai/hub/events" radar="1"/>
 
-### 智源社区 - 评论 {#bei-jing-zhi-yuan-ren-gong-zhi-neng-yan-jiu-yuan-zhi-yuan-she-qu---ping-lun}
+### 智源社区 - 评论 {#bei-jing-zhi-yuan-ren-gong-zhi-neng-yan-jiu-yuan-zhi-yuan-she-qu-ping-lun}
 
 <Route author="TonyRL" example="/baai/hub/comments" path="/baai/hub/comments" radar="1"/>
 
@@ -1049,7 +1083,7 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 ## 极术社区 {#ji-shu-she-qu}
 
-### 频道、专栏、用户 {#ji-shu-she-qu-pin-dao-%E3%80%81-zhuan-lan-%E3%80%81-yong-hu}
+### 频道、专栏、用户 {#ji-shu-she-qu-pin-dao-zhuan-lan-yong-hu}
 
 <Route author="bigfei" example="/aijishu/channel/ai" path="/aijishu/:type/:name?" paramsDesc={['文章类型，可以取值如下', '名字，取自URL']} radar="1" rssbud="1">
 
@@ -1217,48 +1251,48 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 <Route author="nczitzk" example="/lianxh" path="/lianxh/:category?" paramsDesc={['分类 id，可在对应分类页 URL 中找到，默认为空，即全部']}>
 
-| 分类                 | id |
-| -------------------- | -- |
-| 全部                 |    |
-| Stata 入门           | 16 |
-| Stata 教程           | 17 |
-| 计量专题             | 18 |
-| 内生性 - 因果推断    | 19 |
-| 面板数据             | 20 |
-| 交乘项 - 调节 - 中介 | 21 |
-| 结果输出             | 22 |
-| 工具软件             | 23 |
-| Stata 绘图           | 24 |
-| 数据处理             | 25 |
-| Stata 程序           | 26 |
-| Probit-Logit         | 27 |
-| 时间序列             | 28 |
-| 空间计量 - 网络分析  | 29 |
-| Markdown-LaTeX       | 30 |
-| 论文写作             | 31 |
-| 回归分析             | 32 |
-| 其它                 | 33 |
-| 数据分享             | 34 |
-| Stata 资源           | 35 |
-| 文本分析 - 爬虫      | 36 |
-| Python-R-Matlab      | 37 |
-| IV-GMM               | 38 |
-| 倍分法 DID           | 39 |
-| 断点回归 RDD         | 40 |
-| PSM-Matching         | 41 |
-| 合成控制法           | 42 |
-| Stata 命令           | 43 |
-| 专题课程             | 44 |
-| 风险管理             | 45 |
-| 生存分析             | 46 |
-| 机器学习             | 47 |
-| 分位数回归           | 48 |
-| SFA-DEA - 效率分析   | 49 |
-| 答疑 - 板书          | 50 |
-| 论文重现             | 51 |
-| 最新课程             | 52 |
-| 公开课               | 53 |
-| Stata33 讲           | 54 |
+| 分类                 | id  |
+| -------------------- | --- |
+| 全部                 |     |
+| Stata 入门           | 16  |
+| Stata 教程           | 17  |
+| 计量专题             | 18  |
+| 内生性 - 因果推断    | 19  |
+| 面板数据             | 20  |
+| 交乘项 - 调节 - 中介 | 21  |
+| 结果输出             | 22  |
+| 工具软件             | 23  |
+| Stata 绘图           | 24  |
+| 数据处理             | 25  |
+| Stata 程序           | 26  |
+| Probit-Logit         | 27  |
+| 时间序列             | 28  |
+| 空间计量 - 网络分析  | 29  |
+| Markdown-LaTeX       | 30  |
+| 论文写作             | 31  |
+| 回归分析             | 32  |
+| 其它                 | 33  |
+| 数据分享             | 34  |
+| Stata 资源           | 35  |
+| 文本分析 - 爬虫      | 36  |
+| Python-R-Matlab      | 37  |
+| IV-GMM               | 38  |
+| 倍分法 DID           | 39  |
+| 断点回归 RDD         | 40  |
+| PSM-Matching         | 41  |
+| 合成控制法           | 42  |
+| Stata 命令           | 43  |
+| 专题课程             | 44  |
+| 风险管理             | 45  |
+| 生存分析             | 46  |
+| 机器学习             | 47  |
+| 分位数回归           | 48  |
+| SFA-DEA - 效率分析   | 49  |
+| 答疑 - 板书          | 50  |
+| 论文重现             | 51  |
+| 最新课程             | 52  |
+| 公开课               | 53  |
+| Stata33 讲           | 54  |
 
 </Route>
 
@@ -1370,9 +1404,9 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 <Route author="hellodword" example="/galaxylab" path="/galaxylab" />
 
-## 前端艺术家 && 飞冰早报 {#qian-duan-yi-shu-jia-%26%26-fei-bing-zao-bao}
+## 前端艺术家 && 飞冰早报 {#qian-duan-yi-shu-jia-fei-bing-zao-bao}
 
-### 列表 {#qian-duan-yi-shu-jia-%26%26-fei-bing-zao-bao-lie-biao}
+### 列表 {#qian-duan-yi-shu-jia-fei-bing-zao-bao-lie-biao}
 
 <Route author="kouchao" example="/jskou/0" path="/jskou/:type?" paramsDesc={['分类']}>
 
@@ -1394,9 +1428,9 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 </Route>
 
-## 日报 | D2 资源库 {#ri-bao-%7C-d2-zi-yuan-ku}
+## 日报 | D2 资源库 {#ri-bao-d2-zi-yuan-ku}
 
-### 日报 | D2 资源库 {#ri-bao-%7C-d2-zi-yuan-ku-ri-bao-%7C-d2-zi-yuan-ku}
+### 日报 | D2 资源库 {#ri-bao-d2-zi-yuan-ku-ri-bao-d2-zi-yuan-ku}
 
 <Route author="Andiedie" example="/d2/daily" path="/d2/daily"/>
 
@@ -1430,25 +1464,25 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 ## 腾讯云 {#teng-xun-yun}
 
-### 云 + 社区专栏 {#teng-xun-yun-yun-%2B-she-qu-zhuan-lan}
+### 云 + 社区专栏 {#teng-xun-yun-yun-she-qu-zhuan-lan}
 
 <Route author="nczitzk" example="/tencent/cloud/column/86410" path="/tencent/cloud/column/:id?/:tag?" paramsDesc={['专栏 id，可在对应专栏页中找到，默认为 86410（腾讯云数据库专家服务）', '标签 id，可在对应专栏页中找到，默认为空']}/>
 
 ## 微信开放平台 {#wei-xin-kai-fang-ping-tai}
 
-### 微信开放社区 - 小程序公告 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu---xiao-cheng-xu-gong-gao}
+### 微信开放社区 - 小程序公告 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu-xiao-cheng-xu-gong-gao}
 
 <Route author="phantomk" example="/wechat-open/community/xcx-announce" path="/wechat-open/community/xcx-announce"/>
 
-### 微信开放社区 - 小游戏公告 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu---xiao-you-xi-gong-gao}
+### 微信开放社区 - 小游戏公告 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu-xiao-you-xi-gong-gao}
 
 <Route author="phantomk" example="/wechat-open/community/xyx-announce" path="/wechat-open/community/xyx-announce"/>
 
-### 微信开放社区 - 微信支付公告 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu---wei-xin-zhi-fu-gong-gao}
+### 微信开放社区 - 微信支付公告 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu-wei-xin-zhi-fu-gong-gao}
 
 <Route author="phantomk" example="/wechat-open/community/pay-announce" path="/wechat-open/community/pay-announce"/>
 
-### 微信开放社区 - 小游戏问答 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu---xiao-you-xi-wen-da}
+### 微信开放社区 - 小游戏问答 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu-xiao-you-xi-wen-da}
 
 <Route author="bestony" example="/wechat-open/community/xyx-question/0" path="/wechat-open/community/xyx-question/:category" paramsDesc={['0', 'hot', 'topic']}>
 
@@ -1458,7 +1492,7 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 </Route>
 
-### 微信开放社区 - 小程序问答 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu---xiao-cheng-xu-wen-da}
+### 微信开放社区 - 小程序问答 {#wei-xin-kai-fang-ping-tai-wei-xin-kai-fang-she-qu-xiao-cheng-xu-wen-da}
 
 <Route author="bestony" example="/wechat-open/community/xcx-question/new" path="/wechat-open/community/xcx-question/:tag" paramsDesc={['new', 'hot', 'topic']}>
 
@@ -1468,7 +1502,7 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 </Route>
 
-### 微信支付 - 商户平台公告 {#wei-xin-kai-fang-ping-tai-wei-xin-zhi-fu---shang-hu-ping-tai-gong-gao}
+### 微信支付 - 商户平台公告 {#wei-xin-kai-fang-ping-tai-wei-xin-zhi-fu-shang-hu-ping-tai-gong-gao}
 
 <Route author="phantomk" example="/wechat-open/pay/announce" path="/wechat-open/pay/announce"/>
 
@@ -1502,7 +1536,7 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 ## 印记中文 {#yin-ji-zhong-wen}
 
-### 周刊 - JavaScript {#yin-ji-zhong-wen-zhou-kan---javascript}
+### 周刊 - JavaScript {#yin-ji-zhong-wen-zhou-kan-javascript}
 
 <Route author="daijinru" example="/docschina/jsweekly" path="/docschina/jsweekly" radar="1" rssbud="1"/>
 
@@ -1518,7 +1552,7 @@ Stay up to date on the latest React news, tutorials, resources, and more. Delive
 
 </Route>
 
-### 小程序商店 - 最新 {#zhi-xiao-cheng-xu-xiao-cheng-xu-shang-dian---zui-xin}
+### 小程序商店 - 最新 {#zhi-xiao-cheng-xu-xiao-cheng-xu-shang-dian-zui-xin}
 
 <Route author="xyqfer" example="/miniapp/store/newest" path="/miniapp/store/newest"/>
 
