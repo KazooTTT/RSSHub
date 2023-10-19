@@ -236,8 +236,8 @@ devDependencies:
     specifier: 2.13.9
     version: 2.13.9
   '@types/koa-basic-auth':
-    specifier: 2.0.4
-    version: 2.0.4
+    specifier: 2.0.5
+    version: 2.0.5
   '@types/koa-favicon':
     specifier: 2.1.2
     version: 2.1.2
@@ -251,8 +251,8 @@ devDependencies:
     specifier: 12.0.1
     version: 12.0.1
   '@types/lint-staged':
-    specifier: 13.2.0
-    version: 13.2.0
+    specifier: 13.2.1
+    version: 13.2.1
   '@types/mailparser':
     specifier: 3.4.2
     version: 3.4.2
@@ -278,8 +278,8 @@ devDependencies:
     specifier: 3.0.5
     version: 3.0.5
   '@types/showdown':
-    specifier: 2.0.2
-    version: 2.0.2
+    specifier: 2.0.3
+    version: 2.0.3
   '@types/supertest':
     specifier: 2.0.15
     version: 2.0.15
@@ -1564,8 +1564,8 @@ packages:
       '@types/node': 20.5.6
     dev: false
 
-  /@types/koa-basic-auth@2.0.4:
-    resolution: {integrity: sha512-PJKvoF5OMGlEEzUnctZDGRQVqV12xB0V4KplDJvHQDX9egh9ADFa456zGXRNnhNr43t3Fe4/VzD6ziM61uM5RQ==}
+  /@types/koa-basic-auth@2.0.5:
+    resolution: {integrity: sha512-LSozA0EaEvS+TVn1eVAHU0tUxGiY6ZEjBfqxPupWhmdPP83lBWvyGzQbc0ngSTRy9s29Pd1R4ZOm+7uQvA5wUA==}
     dependencies:
       '@types/koa': 2.13.9
     dev: true
@@ -1624,8 +1624,8 @@ packages:
     resolution: {integrity: sha512-pTjcqY9E4nOI55Wgpz7eiI8+LzdYnw3qxXCfHyBDdPbYvbyLgWLJGh8EdPvqawwMK1Uo1794AUkkR38Fr0g+2g==}
     dev: true
 
-  /@types/lint-staged@13.2.0:
-    resolution: {integrity: sha512-rYHDtOV4BHb1hRH5dA7P+jarU/YFmQ9CGgwYPZNVRoxhrsrm2exEETeIEB+EmBk2AXIKAaK9JDzjpNCkceDGFQ==}
+  /@types/lint-staged@13.2.1:
+    resolution: {integrity: sha512-/pIzducFqyJAdXJb2pkQJNTIYBBph/XQdsBgn9oTuNjL1fMRw7AbutYzB0ODTxi8NYqJ9KUk9WyabZvpdNT/kQ==}
     dev: true
 
   /@types/mailparser@3.4.2:
@@ -1749,8 +1749,8 @@ packages:
       '@types/node': 20.5.6
     dev: true
 
-  /@types/showdown@2.0.2:
-    resolution: {integrity: sha512-0UnGnwRsiTojb5VGCkgbk3mKJpyAR2EPhalhHGY4/NCFwDyacqVmPWP7uV0mbXC4eh6n7lO3HPCpb2NP+B5NPQ==}
+  /@types/showdown@2.0.3:
+    resolution: {integrity: sha512-cFuAcA3p2YPq8HR8KxvDXnOdccOZ74ypANB3kb3AL5Srji0QnteVw6vf4o7GJ8hMyz+uZ+nSQHVgXSgjYD1a5g==}
     dev: true
 
   /@types/stack-utils@2.0.1:
