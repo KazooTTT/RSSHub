@@ -39,7 +39,7 @@ RSSHub can be used with browser extension [RSSHub Radar](https://github.com/DIYg
 ### Special Sponsors
 
 <p>
-<a href="https://xlog.app/" target="_blank"><img height="100px" src="https://i.imgur.com/JuhHTKD.png"></a>
+<a href="https://rss3.io" target="_blank"><img height="50px" src="https://i.imgur.com/lb1dDGK.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://xlog.app/" target="_blank"><img height="50px" src="https://i.imgur.com/JuhHTKD.png"></a>
 </p>
 
 [![](https://opencollective.com/static/images/become_sponsor.svg)](https://docs.rsshub.app/support/)
@@ -52,7 +52,7 @@ Logo designer [sheldonrrr](https://dribbble.com/sheldonrrr)
 
 ### Backers
 
-<a href="https://www.cloudflare.com" target="_blank"><img height="50px" src="https://i.imgur.com/7Ph27Fq.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.netlify.com" target="_blank"><img height="40px" src="https://i.imgur.com/cU01915.png"></a>
+<a href="https://www.cloudflare.com" target="_blank"><img height="50px" src="https://i.imgur.com/7Ph27Fq.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.netlify.com" target="_blank"><img height="40px" src="https://i.imgur.com/cU01915.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://1password.com" target="_blank"><img height="40px" src="https://i.imgur.com/a2XjflO.png"></a>
 
 ## Related Projects
 
@@ -87,7 +87,7 @@ Recurring donors will be rewarded via express issue response, or even have your 
 -   Become a Sponser on [Patreon](https://www.patreon.com/DIYgod)
 -   Become a Sponser on [Open Collective](https://opencollective.com/RSSHub)
 -   Become a Sponser on [爱发电](https://afdian.net/@diygod)
--   Contact us directly: i@diygod.me
+-   Contact us directly: <i@diygod.me>
 
 ### One-time Donation
 

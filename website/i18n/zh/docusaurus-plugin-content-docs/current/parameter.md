@@ -41,13 +41,13 @@ https://rsshub.app/twitter/user/durov/
 
 ## 内容过滤
 
-:::caution
+:::warning
 
 请务必显式进行[彻底的 URL 编码](https://gchq.github.io/CyberChef/#recipe=URL_Encode\(true\))。切勿依赖浏览器的自动 URL 编码，某些字符，如 `+`, `&`，将不会被自动编码，进而导致最终解析结果不正确。
 
 :::
 
-:::caution
+:::warning
 
 filter 支持正则表达式。由于正则部分特性可被利用于 DoS (ReDOS)，默认引擎`re2`屏蔽了部分`Regexp`功能，且在部分情况下表现不一致。具体差异可以[查看文档](https://github.com/uhop/node-re2#limitations-things-re2-does-not-support)
 
@@ -142,7 +142,7 @@ Telegram 即时预览模式需要在官网制作页面处理模板，请前往[�
 
 ## 多媒体处理
 
-:::caution
+:::warning
 
 这是个测试中的 API
 
@@ -158,7 +158,7 @@ Telegram 即时预览模式需要在官网制作页面处理模板，请前往[�
 
 ## 输出格式
 
-RSSHub 同时支持 RSS 2.0、Atom 和 JSON Feed 输出格式，在路由末尾添加 `.rss`、`.atom` 或 `.json` 即可请求对应输出格式，缺省为 RSS 2.0
+RSSHub 同时支持 RSS 2.0、Atom、JSON Feed 和 RSS3 UMS 输出格式，在路由末尾添加 `.rss`、`.atom`、`.json` 或 `.ums` 即可请求对应输出格式，缺省为 RSS 2.0
 
 举例:
 
@@ -166,6 +166,7 @@ RSSHub 同时支持 RSS 2.0、Atom 和 JSON Feed 输出格式，在路由末尾�
 -   RSS 2.0 - [https://rsshub.app/jianshu/home.rss](https://rsshub.app/jianshu/home.rss)
 -   Atom - [https://rsshub.app/jianshu/home.atom](https://rsshub.app/jianshu/home.atom)
 -   JSON Feed - [https://rsshub.app/twitter/user/DIYgod.json](https://rsshub.app/twitter/user/DIYgod.json)
+-   RSS3 UMS - [https://rsshub.app/abc.ums](https://rsshub.app/abc.ums)
 -   和 filter 或其他 URL query 一起使用 - `https://rsshub.app/bilibili/user/coin/2267573.atom?filter=微小微|赤九玖|暴走大事件`
 
 ### debug.json
@@ -193,3 +194,17 @@ RSSHub 同时支持 RSS 2.0、Atom 和 JSON Feed 输出格式，在路由末尾�
 举例：
 
 -   输出 100 字简讯: `?brief=100`
+
+## 输出 GPT 总结的内容（仅自建）
+
+可以使用 `chatgpt` 参数输出 GPT 总结的内容，详细配置请见[部署](/zh/install/config#other-application-configurations)。请考虑是否有必要开启，因为这会消耗一些 tokens
+
+-   `chatgpt`: 任意值开启
+
+要求：
+
+-   已设置 `OPENAI_API_KEY` 环境变量
+
+举例：
+
+-   `/meituan/tech/home?chatgpt=true`

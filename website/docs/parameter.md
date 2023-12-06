@@ -20,13 +20,13 @@ E.g.
 
 ## Filtering
 
-:::caution
+:::warning
 
 Please make sure you've [fully URL-encoded](https://gchq.github.io/CyberChef/#recipe=URL_Encode(true)) the parameters. Do not rely on the browser's automatic URL encoding. Some characters, such as `+`, `&`, will not be automatically encoded, resulting in the final parsing result not being correct.
 
 :::
 
-:::caution
+:::warning
 
 filter supports Regex, and due to the fact that some Regex are vulnerable to DoS (ReDoS), default engine `re2` blocks some of these functionalities available in node `Regexp`. These two engines also behaves a bit different in some corner cases. [Details](https://github.com/uhop/node-re2#limitations-things-re2-does-not-support)
 
@@ -120,7 +120,7 @@ E.g. [https://rsshub.app/theinitium/channel/latest/zh-hans?opencc=t2s](https://r
 
 ## Multimedia processing
 
-:::caution
+:::warning
 
 This is an experimental API
 
@@ -136,7 +136,7 @@ There are more details in the [FAQ](/faq).
 
 ## Output Formats
 
-RSSHub conforms to RSS 2.0, Atom and JSON Feed Standard, simply append `.rss`, `.atom` or `.json` to the end of the feed address to obtain the feed in corresponding format. The default output format is RSS 2.0.
+RSSHub conforms to RSS 2.0, Atom, JSON Feed and RSS3 UMS Standard, simply append `.rss`, `.atom`, `.json`, or `.ums` to the end of the feed address to obtain the feed in corresponding format. The default output format is RSS 2.0.
 
 E.g.
 
@@ -144,6 +144,7 @@ E.g.
 -   RSS 2.0 - [https://rsshub.app/dribbble/popular.rss](https://rsshub.app/dribbble/popular.rss)
 -   Atom - [https://rsshub.app/dribbble/popular.atom](https://rsshub.app/dribbble/popular.atom)
 -   JSON Feed - [https://rsshub.app/twitter/user/DIYgod.json](https://rsshub.app/twitter/user/DIYgod.json)
+-   RSS3 UMS - [https://rsshub.app/abc.ums](https://rsshub.app/abc.ums)
 -   Apply filters or URL query - [https://rsshub.app/dribbble/popular.atom?filterout=Blue|Yellow|Black](https://rsshub.app/dribbble/popular.atom?filterout=Blue|Yellow|Black)
 
 ### debug.json
@@ -171,3 +172,17 @@ Set the parameter `brief` to generate a brief pure-text introduction with a limi
 For example：
 
 -   Brief introduction with 100 characters: `?brief=100`
+
+## Summarized by ChatGPT (Self-hosted)
+
+Set the parameter `chatgpt` to generate a summary by ChatGPT. See [Install](/install/config#other-application-configurations) for details. Please consider the necessity of this feature, because it will consume some tokens.
+
+-   `chatgpt`: set to any value
+
+Requirements：
+
+-   `OPENAI_API_KEY` environment variable has been set
+
+For example：
+
+-   `/meituan/tech/home?chatgpt=true`
