@@ -1704,11 +1704,15 @@ Compared to the official one, this feed:
 
 <Route author="WhiteWorld nczitzk Fatpandac" example="/readhub" path="/readhub/:category?" paramsDesc={['分类，见下表，默认为热门话题']} radar="1">
 
-| 热门话题 | 每日早报 | 科技动态 | 医疗产业 |
-| -------- | -------- | -------- | -------- |
-|          | daily    | news     | medical  |
+| 热门话题 | 科技动态 | 医疗产业    | 财经快讯              |
+| ---- | ---- | ------- | ----------------- |
+|      | news | medical | financial_express |
 
 </Route>
+
+### 每日早报 {#readhub-mei-ri-zao-bao}
+
+<Route author="nczitzk" example="/readhub/daily" path="/readhub/daily" radar="1"/>
 
 ## Sakamichi Series 坂道系列官网资讯 {#sakamichi-series-ban-dao-xi-lie-guan-wang-zi-xun}
 
@@ -4814,6 +4818,12 @@ column 为 third 时可选的 category:
 | 默认空   | fresh    | industry | talk     | intech        | investor | everything |
 
 </Route>
+
+## 米课 {#mi-ke}
+
+### 米课圈精华 {#mi-ke-mi-ke-quan-jing-hua}
+
+<Route author="nczitzk" example="/imiker/ask/jinghua" path="/imiker/ask/jinghua" radar="1"/>
 
 ## 摩点 {#mo-dian}
 
