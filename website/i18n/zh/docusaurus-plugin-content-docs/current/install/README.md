@@ -22,6 +22,7 @@ sidebar: auto
 5.  [Google App Engine](https://cloud.google.com/appengine/)
 6.  [Fly.io](https://fly.io/)
 7.  [Zeabur](https://zeabur.com)
+8.  [Sealos](https://sealos.io)
 
 ## Docker 镜像
 
@@ -140,7 +141,7 @@ $ docker run -d --name rsshub -p 1200:1200 -e CACHE_EXPIRE=3600 -e GITHUB_ACCESS
 
 该部署方式不包括 puppeteer（除非改用 `diygod/rsshub:chromium-bundled`）和 redis 依赖，如有需要请改用 Docker Compose 部署方式或自行部署外部依赖
 
-更多配置项请看 [#配置](#pei-zhi)
+更多配置项请看 [#配置](/zh/install/config)
 
 ## Kubernetes 部署 (Helm)
 
@@ -385,7 +386,7 @@ CACHE_EXPIRE=600
 
 该部署方式不包括 redis 依赖，如有需要请改用 Docker Compose 部署方式或自行部署外部依赖
 
-更多配置项请看 [#配置](#pei-zhi)
+更多配置项请看 [#配置](/zh/install/config)
 
 ### 更新
 
@@ -439,6 +440,12 @@ Heroku [不再](https://blog.heroku.com/next-chapter) 提供免费服务。
 2.  把自己的分叉部署到 Heroku：`https://heroku.com/deploy?template=URL`，其中 `URL` 改为分叉地址 （例如 `https://github.com/USERNAME/RSSHub`）。
 3.  检查 Heroku 设置，随代码库更新自动部署。
 4.  安装 [Pull](https://github.com/apps/pull) 应用，定期将 RSSHub 改动自动同步至你的分叉。
+
+## 部署到 Sealos（包含 Redis 缓存）
+
+包含自动更新
+
+[![Deploy to Sealos](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://template.cloud.sealos.io/deploy?templateName=rsshub)
 
 ## 部署到 Vercel (ZEIT Now)
 
