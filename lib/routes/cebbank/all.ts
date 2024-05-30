@@ -1,15 +1,40 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { load } from 'cheerio';
-import * as path from 'node:path';
+import path from 'node:path';
 import { art } from '@/utils/render';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import md5 from '@/utils/md5';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/quotation/all',
+    categories: ['other'],
+    example: '/cebbank/quotation/all',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['cebbank.com/site/ygzx/whpj/index.html', 'cebbank.com/eportal/ui', 'cebbank.com/'],
+        },
+    ],
+    name: 'Unknown',
+    maintainers: ['linbuxiao'],
+    handler,
+    url: 'cebbank.com/site/ygzx/whpj/index.html',
+};
+
+async function handler(ctx) {
     const link = 'https://www.cebbank.com/eportal/ui?pageId=477257';
     const content = await got({
         method: 'get',
@@ -38,17 +63,16 @@ export default async (ctx) => {
         })
         .get();
 
-    ctx.set('data', {
+    const ret = {
         title: '中国光大银行',
         description: '中国光大银行 外汇牌价',
         link,
         item: items,
-    });
+    };
 
     ctx.set('json', {
-        title: '中国光大银行',
-        description: '中国光大银行 外汇牌价',
+        ...ret,
         pubDate: timezone(parseDate($('#t_id span').text().substring(5), 'YYYY-MM-DD HH:mm', true), 0),
-        item: items,
     });
-};
+    return ret;
+}

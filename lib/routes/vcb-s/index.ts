@@ -1,15 +1,30 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
 const rootUrl = 'https://vcb-s.com';
 const postsAPIUrl = `${rootUrl}/wp-json/wp/v2/posts`;
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/',
+    radar: [
+        {
+            source: ['vcb-s.com/'],
+            target: '',
+        },
+    ],
+    name: 'Unknown',
+    maintainers: ['cxfksword'],
+    handler,
+    url: 'vcb-s.com/',
+};
+
+async function handler(ctx) {
     const limit = ctx.req.query('limit') ?? 7;
     const url = `${postsAPIUrl}?per_page=${limit}&_embed`;
 
@@ -34,9 +49,9 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: 'VCB-Studio - 大家一起实现的故事！',
         link: rootUrl,
         item: items,
-    });
-};
+    };
+}

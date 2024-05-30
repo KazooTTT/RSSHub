@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -7,9 +8,32 @@ import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { config } from '@/config';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/author/:mid',
+    categories: ['new-media'],
+    example: '/tencent/news/author/5933889',
+    parameters: { mid: '企鹅号 ID' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['new.qq.com/omn/author/:mid'],
+        },
+    ],
+    name: '更新',
+    maintainers: ['LogicJake', 'miles170'],
+    handler,
+};
+
+async function handler(ctx) {
     const mid = ctx.req.param('mid');
     const homePageInfoUrl = `https://i.news.qq.com/i/getUserHomepageInfo?chlid=${mid}`;
     const userInfo = await cache.tryGet(homePageInfoUrl, async () => (await got(homePageInfoUrl)).data.userinfo);
@@ -44,17 +68,19 @@ export default async (ctx) => {
                               .text()
                               .match(/window\.DATA = ({.+});/)[1]
                       );
-                      const $data = load(data.originContent.text, null, false);
-
-                      $data('*')
-                          .contents()
-                          .filter((_, elem) => elem.type === 'comment')
-                          .replaceWith((_, elem) =>
-                              art(path.join(__dirname, '../templates/news/image.art'), {
-                                  attribute: elem.data.trim(),
-                                  originAttribute: data.originAttribute,
-                              })
-                          );
+                      const $data = load(data.originContent?.text || '', null, false);
+                      if ($data) {
+                          // Not video page
+                          $data('*')
+                              .contents()
+                              .filter((_, elem) => elem.type === 'comment')
+                              .replaceWith((_, elem) =>
+                                  art(path.join(__dirname, '../templates/news/image.art'), {
+                                      attribute: elem.data.trim(),
+                                      originAttribute: data.originAttribute,
+                                  })
+                              );
+                      }
 
                       return {
                           title,
@@ -67,10 +93,10 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title,
         description,
         link: `https://new.qq.com/omn/author/${mid}`,
         item: items,
-    });
-};
+    };
+}

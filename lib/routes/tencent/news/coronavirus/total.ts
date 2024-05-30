@@ -1,12 +1,26 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import { getData } from './utils';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/coronavirus/total',
+    radar: [
+        {
+            source: ['new.qq.com/zt2020/page/feiyan.htm'],
+        },
+    ],
+    name: 'Unknown',
+    maintainers: ['CaoMeiYouRen'],
+    handler,
+    url: 'new.qq.com/zt2020/page/feiyan.htm',
+};
+
+async function handler() {
     const title = '腾讯新闻 - 新型冠状病毒肺炎疫情实时追踪';
     const link = 'https://news.qq.com/zt2020/page/feiyan.htm#/';
     const item = [];
@@ -29,9 +43,9 @@ export default async (ctx) => {
     };
     item.push(info);
 
-    ctx.set('data', {
+    return {
         title,
         link,
         item,
-    });
-};
+    };
+}

@@ -1,11 +1,20 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import { ImapFlow } from 'imapflow';
 import { config } from '@/config';
 import { simpleParser } from 'mailparser';
 import logger from '@/utils/logger';
 import { parseDate } from '@/utils/parse-date';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/imap/:email/:folder{.+}?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { email, folder = 'INBOX' } = ctx.req.param();
     const { limit = 10 } = ctx.req.query();
     const mailConfig = {
@@ -15,7 +24,7 @@ export default async (ctx) => {
     };
 
     if (!mailConfig.username || !mailConfig.password || !mailConfig.host || !mailConfig.port) {
-        throw new Error('Email Inbox RSS is disabled due to the lack of <a href="https://docs.rsshub.app/install#route-specific-configurations">relevant config</a>');
+        throw new ConfigNotFoundError('Email Inbox RSS is disabled due to the lack of <a href="https://docs.rsshub.app/deploy/#route-specific-configurations">relevant config</a>');
     }
 
     const client = new ImapFlow({
@@ -91,10 +100,10 @@ export default async (ctx) => {
 
     await client.logout();
 
-    ctx.set('data', {
+    return {
         title: `${email}'s Inbox${folder === 'INBOX' ? '' : ` - ${folder}`}`,
         link: `https://${email.split('@')[1]}`,
         item: items,
         allowEmpty: true,
-    });
-};
+    };
+}

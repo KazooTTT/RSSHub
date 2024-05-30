@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -8,9 +9,16 @@ import { load } from 'cheerio';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '*',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const rootUrl = 'https://news.pts.org.tw';
     const currentUrl = `${rootUrl}${getSubPath(ctx) === '/' ? '/dailynews' : getSubPath(ctx)}`;
 
@@ -21,7 +29,7 @@ export default async (ctx) => {
 
     const $ = load(response.data);
 
-    let items = $('h2 a')
+    let items = $('h1 a,h2 a')
         .slice(0, ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : 30)
         .toArray()
         .map((item) => {
@@ -63,11 +71,11 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: $('title')
             .text()
             .replace(/第\d+頁 ｜ /, ''),
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

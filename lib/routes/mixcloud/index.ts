@@ -1,9 +1,40 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import CryptoJS from 'crypto-js';
 import { parseDate } from '@/utils/parse-date';
 import { queries } from './queries';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:username/:type?',
+    categories: ['multimedia'],
+    example: '/mixcloud/dholbach/uploads',
+    parameters: { username: 'Username, can be found in URL', type: 'Type, see below, uploads by default' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: true,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['mixcloud.com/:username/:type?'],
+        },
+        {
+            source: ['www.mixcloud.com/:username/:type?'],
+        },
+    ],
+    name: 'User',
+    maintainers: ['Misaka13514'],
+    handler,
+    description: `| Shows   | Reposts | Favorites | History | Stream |
+  | ------- | ------- | --------- | ------- | ------ |
+  | uploads | reposts | favorites | listens | stream |`,
+};
+
+async function handler(ctx) {
     const host = 'https://www.mixcloud.com';
     const imageBaseURL = 'https://thumbnailer.mixcloud.com/unsafe/480x480/';
     const graphqlURL = 'https://app.mixcloud.com/graphql';
@@ -14,17 +45,19 @@ export default async (ctx) => {
     };
 
     const type = ctx.req.param('type') ?? 'uploads';
-    if (!['stream', 'uploads', 'favorites', 'listens'].includes(type)) {
-        throw new Error(`Invalid type: ${type}`);
-    }
     const username = ctx.req.param('username');
 
     const config = {
         stream: { name: 'Stream', node: 'stream' },
         uploads: { name: 'Shows', node: 'uploads' },
+        reposts: { name: 'Reposts', node: 'reposted' },
         favorites: { name: 'Favorites', node: 'favorites' },
         listens: { name: 'History', node: 'listeningHistory' },
     };
+    if (!config[type]) {
+        throw new InvalidParameterError(`Invalid type: ${type}`);
+    }
+
     const payloads = {
         stream: {
             query: queries.stream.query,
@@ -41,6 +74,16 @@ export default async (ctx) => {
                     username: ctx.req.param('username'),
                 },
                 orderBy: 'LATEST',
+                onlyAttributedTo: '',
+                hasAttributedTo: false,
+            },
+        },
+        reposts: {
+            query: queries.reposts.query,
+            variables: {
+                lookup: {
+                    username: ctx.req.param('username'),
+                },
             },
         },
         favorites: {
@@ -102,12 +145,12 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `Mixcloud - ${data.user.displayName}'s ${config[type].name}`,
         description: biog.replaceAll('\n', '<br>'),
         itunes_author: data.user.displayName,
         image,
         link: `${host}/${username}/${type}/`,
         item: items,
-    });
-};
+    };
+}

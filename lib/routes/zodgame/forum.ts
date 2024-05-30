@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,17 +7,41 @@ import got from '@/utils/got';
 import { config } from '@/config';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
 const rootUrl = 'https://zodgame.xyz';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/forum/:fid?',
+    categories: ['bbs'],
+    example: '/zodgame/forum/13',
+    parameters: { fid: 'forum id, can be found in URL' },
+    features: {
+        requireConfig: [
+            {
+                name: 'ZODGAME_COOKIE',
+                description: '',
+            },
+        ],
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'forum',
+    maintainers: ['FeCCC'],
+    handler,
+};
+
+async function handler(ctx) {
     const fid = ctx.req.param('fid');
     const subUrl = `${rootUrl}/api/mobile/index.php?version=4&module=forumdisplay&fid=${fid}`;
     const cookie = config.zodgame.cookie;
 
     if (cookie === undefined) {
-        throw new Error('Zodgame RSS is disabled due to the lack of <a href="https://docs.rsshub.app/install/#pei-zhi-bu-fen-rss-mo-kuai-pei-zhi">relevant config</a>');
+        throw new ConfigNotFoundError('Zodgame RSS is disabled due to the lack of <a href="https://docs.rsshub.app/deploy/config#route-specific-configurations">relevant config</a>');
     }
 
     const response = await got({
@@ -88,9 +113,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `${info.forum.name} - ZodGame论坛`,
         link: `${rootUrl}/forum.php?mod=forumdisplay&fid=${fid}`,
         item: items,
-    });
-};
+    };
+}

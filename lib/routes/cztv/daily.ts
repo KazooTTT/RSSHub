@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -5,12 +6,36 @@ import { load } from 'cheerio';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
-import * as path from 'node:path';
+import path from 'node:path';
 import { art } from '@/utils/render';
 
 const renderDesc = (item) => art(path.join(__dirname, 'templates/daily.art'), item);
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/zjxwlb/daily',
+    categories: ['traditional-media'],
+    example: '/cztv/zjxwlb/daily',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['cztv.com/videos/zjxwlb', 'cztv.com/'],
+        },
+    ],
+    name: '浙江新闻联播 - 每日合集',
+    maintainers: ['yhkang'],
+    handler,
+    url: 'cztv.com/videos/zjxwlb',
+};
+
+async function handler() {
     const url = 'http://www.cztv.com/videos/zjxwlb';
 
     const { data: res } = await got(url);
@@ -36,9 +61,9 @@ export default async (ctx) => {
         description: renderDesc({ list: list.slice(1) }),
     };
 
-    ctx.set('data', {
+    return {
         title: '浙江新闻联播-每日合集',
         link: url,
         item: [out],
-    });
-};
+    };
+}

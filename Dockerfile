@@ -39,17 +39,17 @@ WORKDIR /ver
 COPY ./package.json /app/
 RUN \
     set -ex && \
-    grep -Po '(?<="puppeteer": ")[^\s"]*(?=")' /app/package.json | tee /ver/.puppeteer_version && \
-    grep -Po '(?<="@vercel/nft": ")[^\s"]*(?=")' /app/package.json | tee /ver/.nft_version && \
-    grep -Po '(?<="fs-extra": ")[^\s"]*(?=")' /app/package.json | tee /ver/.fs_extra_version
+    grep -Po '(?<="puppeteer": ")[^\s"]*(?=")' /app/package.json | tee /ver/.puppeteer_version
+    # grep -Po '(?<="@vercel/nft": ")[^\s"]*(?=")' /app/package.json | tee /ver/.nft_version && \
+    # grep -Po '(?<="fs-extra": ")[^\s"]*(?=")' /app/package.json | tee /ver/.fs_extra_version
 
 # ---------------------------------------------------------------------------------------------------------------------
 
 FROM node:21-bookworm-slim AS docker-minifier
 # The stage is used to further reduce the image size by removing unused files.
 
-WORKDIR /minifier
-COPY --from=dep-version-parser /ver/* /minifier/
+WORKDIR /app
+# COPY --from=dep-version-parser /ver/* /minifier/
 
 # ARG USE_CHINA_NPM_REGISTRY=0
 # RUN \
@@ -73,6 +73,7 @@ RUN \
     # rm -rf /app/node_modules /app/scripts && \
     # mv /app/app-minimal/node_modules /app/ && \
     # rm -rf /app/app-minimal && \
+    npm run build && \
     ls -la /app && \
     du -hd1 /app
 
@@ -83,7 +84,7 @@ FROM node:21-bookworm-slim AS chromium-downloader
 # Yeah, downloading Chromium never needs those dependencies below.
 
 WORKDIR /app
-COPY ./.puppeteerrc.js /app/
+COPY ./.puppeteerrc.cjs /app/
 COPY --from=dep-version-parser /ver/.puppeteer_version /app/.puppeteer_version
 
 ARG TARGETPLATFORM
@@ -131,7 +132,7 @@ RUN \
     set -ex && \
     apt-get update && \
     apt-get install -yq --no-install-recommends \
-        dumb-init \
+        dumb-init git \
     ; \
     if [ "$PUPPETEER_SKIP_DOWNLOAD" = 0 ]; then \
         if [ "$TARGETPLATFORM" = 'linux/amd64' ]; then \
@@ -145,20 +146,18 @@ RUN \
             apt-get install -yq --no-install-recommends \
                 chromium \
             && \
-            echo 'CHROMIUM_EXECUTABLE_PATH=chromium' | tee /app/.env ; \
+            echo "CHROMIUM_EXECUTABLE_PATH=$(which chromium)" | tee /app/.env ; \
         fi; \
     fi; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=chromium-downloader /app/node_modules/.cache/puppeteer /app/node_modules/.cache/puppeteer
 
-# if grep matches nothing then it will exit with 1, thus, we cannot `set -e` here
 RUN \
-    set -x && \
+    set -ex && \
     if [ "$PUPPETEER_SKIP_DOWNLOAD" = 0 ] && [ "$TARGETPLATFORM" = 'linux/amd64' ]; then \
         echo 'Verifying Chromium installation...' && \
-        ldd $(find /app/node_modules/.cache/puppeteer/ -name chrome -type f) | grep "not found" ; \
-        if [ "$?" = 0 ]; then \
+        if ldd $(find /app/node_modules/.cache/puppeteer/ -name chrome -type f) | grep "not found"; then \
             echo "!!! Chromium has unmet shared libs !!!" && \
             exit 1 ; \
         else \

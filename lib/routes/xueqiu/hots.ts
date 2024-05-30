@@ -1,15 +1,36 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import queryString from 'query-string';
 import { parseDate } from '@/utils/parse-date';
 import sanitizeHtml from 'sanitize-html';
+import { parseToken } from '@/routes/xueqiu/cookies';
 
-export default async (ctx) => {
-    const res1 = await got({
-        method: 'get',
-        url: 'https://xueqiu.com/',
-    });
-    const token = res1.headers['set-cookie'].find((s) => s.startsWith('xq_a_token=')).split(';')[0];
+export const route: Route = {
+    path: '/hots',
+    categories: ['finance'],
+    example: '/xueqiu/hots',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['xueqiu.com/'],
+        },
+    ],
+    name: '热帖',
+    maintainers: ['hillerliao'],
+    handler,
+    url: 'xueqiu.com/',
+};
 
+async function handler() {
+    const token = await parseToken();
     const res2 = await got({
         method: 'get',
         url: 'https://xueqiu.com/statuses/hots.json',
@@ -28,7 +49,7 @@ export default async (ctx) => {
     });
     const data = res2.data;
 
-    ctx.set('data', {
+    return {
         title: `热帖 - 雪球`,
         link: `https://xueqiu.com/`,
         description: `雪球热门帖子`,
@@ -42,5 +63,5 @@ export default async (ctx) => {
                 author: item.user.screen_name,
             };
         }),
-    });
-};
+    };
+}

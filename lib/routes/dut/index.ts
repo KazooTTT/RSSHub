@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -5,11 +6,19 @@ import { parseDate } from '@/utils/parse-date';
 import defaults from './defaults';
 import shortcuts from './shortcuts';
 import { isValidHost } from '@/utils/valid-host';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/*/*', '/:0?'],
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const site = ctx.params[0] ?? 'news';
     if (!isValidHost(site)) {
-        throw new Error('Invalid site');
+        throw new InvalidParameterError('Invalid site');
     }
 
     let items;
@@ -86,10 +95,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: $('title').text(),
         link: currentUrl,
         item: items,
         allowEmpty: true,
-    });
-};
+    };
+}

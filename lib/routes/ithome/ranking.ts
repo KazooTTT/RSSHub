@@ -1,8 +1,31 @@
+import InvalidParameterError from '@/errors/types/invalid-parameter';
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/ranking/:type',
+    categories: ['new-media'],
+    example: '/ithome/ranking/24h',
+    parameters: { type: '类别' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '热榜',
+    maintainers: ['immmortal', 'luyuhuang'],
+    handler,
+    description: `| 24h           | 7days    | monthly |
+  | ------------- | -------- | ------- |
+  | 24 小时阅读榜 | 7 天最热 | 月榜    |`,
+};
+
+async function handler(ctx) {
     const option = ctx.req.param('type');
 
     const response = await got({
@@ -27,7 +50,7 @@ export default async (ctx) => {
     const id = type2id[option];
 
     if (!id) {
-        throw new Error('Bad type. See <a href="https://docs.rsshub.app/routes/new-media#it-zhi-jia">https://docs.rsshub.app/routes/new-media#it-zhi-jia</a>');
+        throw new InvalidParameterError('Bad type. See <a href="https://docs.rsshub.app/routes/new-media#it-zhi-jia">https://docs.rsshub.app/routes/new-media#it-zhi-jia</a>');
     }
 
     const list = $(`#${id} > li`)
@@ -62,9 +85,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `IT之家-${title}`,
         link: 'https://www.ithome.com',
         item: items,
-    });
-};
+    };
+}

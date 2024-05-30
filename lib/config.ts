@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import randUserAgent from '@/utils/rand-user-agent';
-import got from 'got';
+import { ofetch } from 'ofetch';
 
 let envs = process.env;
 
@@ -166,6 +166,9 @@ export type Config = {
         username?: string;
         password?: string;
     };
+    javdb: {
+        session?: string;
+    };
     lastfm: {
         api_key?: string;
     };
@@ -184,9 +187,15 @@ export type Config = {
         cookies: Record<string, string | undefined>;
         articleCookie?: string;
     };
+    mihoyo: {
+        cookie?: string;
+    };
     miniflux: {
         instance?: string;
         token?: string;
+    };
+    mox: {
+        cookie: string;
     };
     ncm: {
         cookies?: string;
@@ -221,6 +230,9 @@ export type Config = {
     pkubbs: {
         cookie?: string;
     };
+    qingting: {
+        id?: string;
+    };
     saraba1st: {
         cookie?: string;
     };
@@ -249,6 +261,8 @@ export type Config = {
         oauthTokenSecrets?: string[];
         username?: string;
         password?: string;
+        authenticationSecret?: string;
+        cookie?: string;
     };
     weibo: {
         app_key?: string;
@@ -269,6 +283,13 @@ export type Config = {
     ximalaya: {
         token?: string;
     };
+    xueqiu: {
+        cookies?: string;
+    };
+    yamibo: {
+        salt?: string;
+        auth?: string;
+    };
     youtube: {
         key?: string;
         clientId?: string;
@@ -280,6 +301,9 @@ export type Config = {
     };
     zodgame: {
         cookie?: string;
+    };
+    zsxq: {
+        accessToken?: string;
     };
 };
 
@@ -344,7 +368,7 @@ const calculateValue = () => {
         allowOrigin: envs.ALLOW_ORIGIN,
         // cache
         cache: {
-            type: envs.CACHE_TYPE || 'memory', // 缓存类型，支持 'memory' 和 'redis'，设为空可以禁止缓存
+            type: envs.CACHE_TYPE || (envs.CACHE_TYPE === '' ? '' : 'memory'), // 缓存类型，支持 'memory' 和 'redis'，设为空可以禁止缓存
             requestTimeout: toInt(envs.CACHE_REQUEST_TIMEOUT, 60),
             routeExpire: toInt(envs.CACHE_EXPIRE, 5 * 60), // 路由缓存时间，单位为秒
             contentExpire: toInt(envs.CACHE_CONTENT_EXPIRE, 1 * 60 * 60), // 不变内容缓存时间，单位为秒
@@ -498,6 +522,9 @@ const calculateValue = () => {
             username: envs.IWARA_USERNAME,
             password: envs.IWARA_PASSWORD,
         },
+        javdb: {
+            session: envs.JAVDB_SESSION,
+        },
         lastfm: {
             api_key: envs.LASTFM_API_KEY,
         },
@@ -522,6 +549,9 @@ const calculateValue = () => {
         miniflux: {
             instance: envs.MINIFLUX_INSTANCE || 'https://reader.miniflux.app',
             token: envs.MINIFLUX_TOKEN || '',
+        },
+        mox: {
+            cookie: envs.MOX_COOKIE,
         },
         ncm: {
             cookies: envs.NCM_COOKIES || '',
@@ -556,6 +586,9 @@ const calculateValue = () => {
         pkubbs: {
             cookie: envs.PKUBBS_COOKIE,
         },
+        qingting: {
+            id: envs.QINGTING_ID,
+        },
         saraba1st: {
             cookie: envs.SARABA1ST_COOKIE,
         },
@@ -589,6 +622,7 @@ const calculateValue = () => {
             username: envs.TWITTER_USERNAME,
             password: envs.TWITTER_PASSWORD,
             authenticationSecret: envs.TWITTER_AUTHENTICATION_SECRET,
+            cookie: envs.TWITTER_COOKIE,
         },
         weibo: {
             app_key: envs.WEIBO_APP_KEY,
@@ -609,6 +643,13 @@ const calculateValue = () => {
         ximalaya: {
             token: envs.XIMALAYA_TOKEN,
         },
+        xueqiu: {
+            cookies: envs.XUEQIU_COOKIES,
+        },
+        yamibo: {
+            salt: envs.YAMIBO_SALT,
+            auth: envs.YAMIBO_AUTH,
+        },
         youtube: {
             key: envs.YOUTUBE_KEY,
             clientId: envs.YOUTUBE_CLIENT_ID,
@@ -621,6 +662,9 @@ const calculateValue = () => {
         zodgame: {
             cookie: envs.ZODGAME_COOKIE,
         },
+        zsxq: {
+            accessToken: envs.ZSXQ_ACCESS_TOKEN,
+        },
     };
 
     for (const name in _value) {
@@ -629,22 +673,27 @@ const calculateValue = () => {
 };
 calculateValue();
 
-if (envs.REMOTE_CONFIG) {
-    got.get(envs.REMOTE_CONFIG)
-        .then(async (response) => {
-            const data = JSON.parse(response.body);
+(async () => {
+    if (envs.REMOTE_CONFIG) {
+        const { default: logger } = await import('@/utils/logger');
+        try {
+            const data = await ofetch(envs.REMOTE_CONFIG, {
+                headers: {
+                    Authorization: `Basic ${envs.REMOTE_CONFIG_AUTH}`,
+                },
+            });
             if (data) {
                 envs = Object.assign(envs, data);
                 calculateValue();
-                const { default: logger } = await import('@/utils/logger');
                 logger.info('Remote config loaded.');
+            } else {
+                logger.error('Remote config load failed.');
             }
-        })
-        .catch(async (error) => {
-            const { default: logger } = await import('@/utils/logger');
+        } catch (error) {
             logger.error('Remote config load failed.', error);
-        });
-}
+        }
+    }
+})();
 
 // @ts-expect-error value is set
 export const config: Config = value;

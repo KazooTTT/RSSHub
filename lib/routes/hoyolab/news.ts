@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,7 +7,7 @@ import got from '@/utils/got';
 import logger from '@/utils/logger';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import { HOST, NEW_LIST, OFFICIAL_PAGE_TYPE, POST_FULL, LINK, PUBLIC_IMG, PRIVATE_IMG } from './constant';
 import { getI18nGameInfo, getI18nType } from './utils';
 
@@ -23,8 +24,8 @@ const getEventList = async ({ type, gids, size, language }) => {
         headers: {
             'X-Rpc-Language': language,
         },
-    }).json();
-    const list = res?.data?.list || [];
+    });
+    const list = res?.data?.data?.list || [];
     return list;
 };
 
@@ -47,9 +48,9 @@ const getPostContent = (list, { language }) =>
                     headers: {
                         'X-Rpc-Language': language,
                     },
-                }).json();
-                const author = res?.data?.post?.user?.nickname || '';
-                let content = res?.data?.post?.post?.content || '';
+                });
+                const author = res?.data?.data?.post?.user?.nickname || '';
+                let content = res?.data?.data?.post?.post?.content || '';
                 if (content === language || !content) {
                     content = post.content;
                 }
@@ -73,7 +74,49 @@ const getPostContent = (list, { language }) =>
         })
     );
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/:language/:gids/:type',
+    categories: ['game'],
+    example: '/hoyolab/news/zh-cn/2/2',
+    parameters: { language: 'Language', gids: 'Game ID', type: 'Announcement type' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'Official Announcement',
+    maintainers: ['ZenoTian'],
+    handler,
+    description: `| Language         | Code  |
+  | ---------------- | ----- |
+  | 简体中文         | zh-cn |
+  | 繁體中文         | zh-tw |
+  | 日本語           | ja-jp |
+  | 한국어           | ko-kr |
+  | English (US)     | en-us |
+  | Español (EU)     | es-es |
+  | Français         | fr-fr |
+  | Deutsch          | de-de |
+  | Русский          | ru-ru |
+  | Português        | pt-pt |
+  | Español (Latino) | es-mx |
+  | Indonesia        | id-id |
+  | Tiếng Việt       | vi-vn |
+  | ภาษาไทย          | th-th |
+
+  | Honkai Impact 3rd | Genshin Impact | Tears of Themis | HoYoLAB | Honkai: Star Rail | Zenless Zone Zero |
+  | ----------------- | -------------- | --------------- | ------- | ----------------- | ----------------- |
+  | 1                 | 2              | 4               | 5       | 6                 | 8                 |
+
+  | Notices | Events | Info |
+  | ------- | ------ | ---- |
+  | 1       | 2      | 3    |`,
+};
+
+async function handler(ctx) {
     try {
         const { type, gids, language } = ctx.req.param();
         const params = {
@@ -86,15 +129,15 @@ export default async (ctx) => {
         const typeInfo = await getI18nType(language, cache.tryGet);
         const list = await getEventList(params);
         const items = await getPostContent(list, params);
-        ctx.set('data', {
+        return {
             title: `HoYoLAB-${gameInfo.name}-${typeInfo[type].title}`,
             link: `${LINK}/circles/${gids}/${OFFICIAL_PAGE_TYPE[gids]}/official?page_type=${OFFICIAL_PAGE_TYPE[gids]}&page_sort=${typeInfo[type].sort}`,
             item: items,
             image: gameInfo.icon,
             icon: gameInfo.icon,
             logo: gameInfo.icon,
-        });
+        };
     } catch (error) {
         logger.error(error);
     }
-};
+}

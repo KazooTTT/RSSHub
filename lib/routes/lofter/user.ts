@@ -1,12 +1,32 @@
+import InvalidParameterError from '@/errors/types/invalid-parameter';
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { isValidHost } from '@/utils/valid-host';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/:name?',
+    categories: ['social-media', 'popular'],
+    example: '/lofter/user/i',
+    parameters: { name: 'Lofter user name, can be found in the URL' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'User',
+    maintainers: ['hondajojo', 'nczitzk', 'LucunJi'],
+    handler,
+};
+
+async function handler(ctx) {
     const name = ctx.req.param('name') ?? 'i';
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : '50';
     if (!isValidHost(name)) {
-        throw new Error('Invalid name');
+        throw new InvalidParameterError('Invalid name');
     }
 
     const rootUrl = `${name}.lofter.com`;
@@ -14,7 +34,7 @@ export default async (ctx) => {
     const response = await got({
         method: 'post',
         url: `http://api.lofter.com/v2.0/blogHomePage.api?product=lofter-iphone-10.0.0`,
-        form: {
+        body: new URLSearchParams({
             blogdomain: rootUrl,
             checkpwd: '1',
             following: '0',
@@ -24,7 +44,7 @@ export default async (ctx) => {
             offset: '0',
             postdigestnew: '1',
             supportposttypes: '1,2,3,4,5,6',
-        },
+        }),
     });
 
     if (!response.data.response || response.data.response.posts.length === 0) {
@@ -52,10 +72,10 @@ export default async (ctx) => {
         category: item.post.tag.split(','),
     }));
 
-    ctx.set('data', {
+    return {
         title: `${items[0].author} | LOFTER`,
         link: rootUrl,
         item: items,
         description: response.data.response.posts[0].post.blogInfo.selfIntro,
-    });
-};
+    };
+}

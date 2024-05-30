@@ -1,10 +1,39 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import queryString from 'query-string';
 import { parseDate } from '@/utils/parse-date';
 import sanitizeHtml from 'sanitize-html';
+import { parseToken } from '@/routes/xueqiu/cookies';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/stock_info/:id/:type?',
+    categories: ['finance'],
+    example: '/xueqiu/stock_info/SZ000002',
+    parameters: { id: '股票代码（需要带上交易所）', type: '动态的类型, 不填则为股票公告' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['xueqiu.com/S/:id', 'xueqiu.com/s/:id'],
+            target: '/stock_info/:id',
+        },
+    ],
+    name: '股票信息',
+    maintainers: ['YuYang'],
+    handler,
+    description: `| 公告         | 新闻 | 研报     |
+  | ------------ | ---- | -------- |
+  | announcement | news | research |`,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const type = ctx.req.param('type') || 'announcement';
     const count = 10;
@@ -21,8 +50,8 @@ export default async (ctx) => {
         method: 'get',
         url: `https://xueqiu.com/S/${id}`,
     });
-    const token = res1.headers['set-cookie'].find((s) => s.startsWith('xq_a_token=')).split(';')[0];
 
+    const token = await parseToken();
     const $ = load(res1.data); // 使用 cheerio 加载返回的 HTML
     const stock_name = $('.stock-name').text().split('(')[0];
 
@@ -49,7 +78,7 @@ export default async (ctx) => {
     });
 
     const data = res2.data.list;
-    ctx.set('data', {
+    return {
         title: `${id} ${stock_name} - ${source}`,
         link: `https://xueqiu.com/S/${id}`,
         description: `${stock_name} - ${source}`,
@@ -65,5 +94,5 @@ export default async (ctx) => {
                 link,
             };
         }),
-    });
-};
+    };
+}

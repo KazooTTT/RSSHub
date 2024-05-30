@@ -1,29 +1,36 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import utils from './utils';
+import { header, processImage, getSignedHeader } from './utils';
 import { parseDate } from '@/utils/parse-date';
-import g_encrypt from './execlib/x-zse-96-v3';
-import md5 from '@/utils/md5';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/topic/:topicId/:isTop?',
+    categories: ['social-media'],
+    example: '/zhihu/topic/19828946',
+    parameters: { topicId: '话题 id', isTop: '仅精华，默认为否，其他值为是' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['www.zhihu.com/topic/:topicId/:type'],
+            target: '/topic/:topicId',
+        },
+    ],
+    name: '话题',
+    maintainers: ['xyqfer'],
+    handler,
+};
+
+async function handler(ctx) {
     const { topicId, isTop = false } = ctx.req.param();
     const link = `https://www.zhihu.com/topic/${topicId}/${isTop ? 'top-answers' : 'newest'}`;
-
-    const cookieDc0 = await cache.tryGet('zhihu:cookies:d_c0', async () => {
-        const { headers } = await got(link, {
-            headers: {
-                ...utils.header,
-            },
-        });
-        const cookie = headers['set-cookie'].toString();
-        const match = cookie.match(/d_c0=(\S+?)(?:;|$)/);
-        const cookieMatched = match?.[1];
-        if (!cookieMatched) {
-            throw new Error('Failed to extract `d_c0` from cookies');
-        }
-        return cookieMatched;
-    });
-    const cookie = `d_c0=${cookieDc0}`;
 
     const topicMeta = await cache.tryGet(`zhihu:topic:${topicId}`, async () => {
         const { data: response } = await got(`https://www.zhihu.com/api/v4/topics/${topicId}/intro`, {
@@ -35,15 +42,12 @@ export default async (ctx) => {
     });
 
     const apiPath = `/api/v5.1/topics/${topicId}/feeds/${isTop ? 'top_activity' : 'timeline_activity'}`;
-    const xzse93 = '101_3_3.0';
-    const f = `${xzse93}+${apiPath}+${cookieDc0}`;
-    const xzse96 = '2.0_' + g_encrypt(md5(f));
-    const _header = { cookie, 'x-zse-96': xzse96, 'x-zse-93': xzse93 };
+    const signedHeader = await getSignedHeader(link, apiPath);
 
     const { data: response } = await got(`https://www.zhihu.com${apiPath}`, {
         headers: {
-            ...utils.header,
-            ..._header,
+            ...header,
+            ...signedHeader,
             Referer: link,
         },
     });
@@ -53,13 +57,13 @@ export default async (ctx) => {
         let title = '';
         let description = '';
         let link = '';
-        let pubDate = '';
+        let pubDate: Date;
         let author = '';
 
         switch (type) {
             case 'answer':
                 title = `${item.question.title}-${item.author.name}的回答：${item.excerpt}`;
-                description = `<strong>${item.question.title}</strong><br>${item.author.name}的回答<br/>${utils.ProcessImage(item.content)}`;
+                description = `<strong>${item.question.title}</strong><br>${item.author.name}的回答<br/>${processImage(item.content)}`;
                 link = `https://www.zhihu.com/question/${item.question.id}/answer/${item.id}`;
                 pubDate = parseDate(item.updated_time * 1000);
                 author = item.author.name;
@@ -74,7 +78,7 @@ export default async (ctx) => {
 
             case 'article':
                 title = item.title;
-                description = utils.ProcessImage(item.content);
+                description = processImage(item.content);
                 link = item.url;
                 pubDate = parseDate(item.created * 1000);
                 break;
@@ -82,7 +86,7 @@ export default async (ctx) => {
             case 'zvideo':
                 title = item.title;
                 description = `${item.description}<br>
-                <video controls poster="${item.video.thumbnail}" preload="none">
+                <video controls poster="${item.video.thumbnail}" preload="metadata">
                     <source src="${item.video.playlist.fhd?.url ?? item.video.playlist.hd?.url ?? item.video.playlist.ld?.url ?? item.video.playlist.sd?.url}" type="video/mp4">
                 </video>`;
                 link = item.url;
@@ -91,6 +95,7 @@ export default async (ctx) => {
 
             default:
                 description = '未知类型，请点击<a href="https://github.com/DIYgod/RSSHub/issues">链接</a>提交issue';
+                pubDate = parseDate(Date.now());
         }
 
         return {
@@ -103,10 +108,10 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `知乎话题-${topicId}-${isTop ? '精华' : '讨论'}`,
         description: topicMeta.content.introduction,
         link,
         item: items,
-    });
-};
+    };
+}

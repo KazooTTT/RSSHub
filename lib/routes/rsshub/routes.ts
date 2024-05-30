@@ -1,7 +1,25 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/routes/:lang?',
+    categories: ['program-update', 'popular'],
+    example: '/rsshub/routes/en',
+    parameters: { lang: 'Language, `zh` means Chinese docs, other values or null means English docs, `en` by default' },
+    radar: [
+        {
+            source: ['docs.rsshub.app/*'],
+            target: '/routes',
+        },
+    ],
+    name: 'New routes',
+    maintainers: ['DIYgod'],
+    handler,
+    url: 'docs.rsshub.app/*',
+};
+
+async function handler(ctx) {
     const isEnglish = ctx.req.param('lang') !== 'zh';
 
     const lang = isEnglish ? '' : 'zh/';
@@ -44,7 +62,7 @@ export default async (ctx) => {
     );
     const list = all.flatMap(({ page, item, type }) => item.map((item) => ({ page, item, type })));
 
-    ctx.set('data', {
+    return {
         title: isEnglish ? 'RSSHub has new routes' : 'RSSHub 有新路由啦',
         link: 'https://docs.rsshub.app',
         description: isEnglish ? 'Everything is RSSible' : '万物皆可 RSS',
@@ -57,9 +75,9 @@ export default async (ctx) => {
             return {
                 title: `${h2Title.text().trim()} - ${h3Title.text().trim()}`,
                 description: item.html(),
-                link: `https://docs.rsshub.app/${lang}routes/${type}#${encodeURIComponent(h2Title.find('.hash-link').attr('href') && h3Title.find('.hash-link').attr('href')?.substring(1))}`,
+                link: `https://docs.rsshub.app/${lang}routes/${type}#${encodeURIComponent(h2Title.find('.header-anchor').attr('href') && h3Title.find('.header-anchor').attr('href')?.substring(1))}`,
                 guid: item.attr('id'),
             };
         }),
-    });
-};
+    };
+}

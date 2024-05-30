@@ -1,7 +1,9 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
 const config = {
     tzgg: {
@@ -10,11 +12,37 @@ const config = {
     },
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/shenzhen/zjj/xxgk/:caty',
+    categories: ['government'],
+    example: '/gov/shenzhen/zjj/xxgk/tzgg',
+    parameters: { caty: '信息类别' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['zjj.sz.gov.cn/xxgk/:caty'],
+        },
+    ],
+    name: '深圳市住房和建设局',
+    maintainers: ['lonn'],
+    handler,
+    description: `| 通知公告 |
+  | :------: |
+  |   tzgg   |`,
+};
+
+async function handler(ctx) {
     const baseUrl = 'http://zjj.sz.gov.cn/xxgk/';
     const cfg = config[ctx.req.param('caty')];
     if (!cfg) {
-        throw new Error('Bad category. See <a href="https://docs.rsshub.app/routes/government#guang-dong-sheng-ren-min-zheng-fu-shen-zhen-shi-zhu-fang-he-jian-she-ju">docs</a>');
+        throw new InvalidParameterError('Bad category. See <a href="https://docs.rsshub.app/routes/government#guang-dong-sheng-ren-min-zheng-fu-shen-zhen-shi-zhu-fang-he-jian-she-ju">docs</a>');
     }
 
     const currentUrl = new URL(cfg.link, baseUrl).href;
@@ -37,9 +65,9 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: '深圳市住房和建设局 - ' + cfg.title,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -5,11 +6,18 @@ import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
 import { sorts, types } from './util';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:type?/:sort?/:filter?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { type = 'game', sort = 'new', filter } = ctx.req.param();
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 50;
 
@@ -48,7 +56,7 @@ export default async (ctx) => {
 
     if (platforms.length || networks.length) {
         const labels = {};
-        const labelPattern = '{label:"([^"]+)",value:(\\d+),href:a,meta:{mcDisplayWeight';
+        const labelPattern = String.raw`{label:"([^"]+)",value:(\d+),href:a,meta:{mcDisplayWeight`;
 
         for (const m of currentResponse.match(new RegExp(labelPattern, 'g'))) {
             const matches = m.match(new RegExp(labelPattern));
@@ -108,7 +116,7 @@ export default async (ctx) => {
 
     const icon = new URL($('meta[data-hid="msapplication-task-metacritic"]').prop('content').split('icon-uri=').pop(), rootUrl).href;
 
-    ctx.set('data', {
+    return {
         item: items,
         title: $('title').text(),
         link: currentUrl,
@@ -120,5 +128,5 @@ export default async (ctx) => {
         subtitle: $('meta[name="msapplication-tooltip"]').prop('content'),
         author: $('meta[name="twitter:site"]').prop('content'),
         allowEmpty: true,
-    });
-};
+    };
+}

@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -5,8 +6,9 @@ import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import { isValidHost } from '@/utils/valid-host';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
 const shortcuts = {
     potd: 'picture/browse/potd/',
@@ -14,11 +16,38 @@ const shortcuts = {
     potm: 'picture/browse/potm/',
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:category?/:language?',
+    categories: ['shopping'],
+    example: '/myfigurecollection/potd',
+    parameters: { category: '分类，默认为每日圖片', language: '语言，见上表，默认为空，即 `en`' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['zh.myfigurecollection.net/browse', 'zh.myfigurecollection.net/'],
+        },
+    ],
+    name: '圖片',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'zh.myfigurecollection.net/browse',
+    description: `| 每日圖片 | 每週圖片 | 每月圖片 |
+  | -------- | -------- | -------- |
+  | potd     | potw     | potm     |`,
+};
+
+async function handler(ctx) {
     const language = ctx.req.param('language') ?? '';
     const category = ctx.req.param('category') ?? 'figure';
     if (language && !isValidHost(language)) {
-        throw new Error('Invalid language');
+        throw new InvalidParameterError('Invalid language');
     }
 
     const rootUrl = `https://${language === 'en' || language === '' ? '' : `${language}.`}myfigurecollection.net`;
@@ -76,11 +105,11 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: $('title')
             .text()
             .replace(/ \(.*\)/, ''),
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

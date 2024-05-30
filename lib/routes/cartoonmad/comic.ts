@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,7 +7,7 @@ import { load } from 'cheerio';
 import got from '@/utils/got';
 import iconv from 'iconv-lite';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
 const baseUrl = 'https://www.cartoonmad.com';
 const KEY = '5e585';
@@ -33,7 +34,30 @@ const getChapters = (id, list, tryGet) =>
         )
     );
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/comic/:id',
+    categories: ['anime'],
+    example: '/cartoonmad/comic/5827',
+    parameters: { id: '漫画ID' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['cartoonmad.com/comic/:id'],
+        },
+    ],
+    name: '漫画更新',
+    maintainers: ['KellyHwong'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const link = `${baseUrl}/comic/${id}`;
 
@@ -65,10 +89,10 @@ export default async (ctx) => {
 
     const chapters = await getChapters(id, list, cache.tryGet);
 
-    ctx.set('data', {
+    return {
         title: $('head title').text(),
         link,
         description: bookIntro,
         item: chapters,
-    });
-};
+    };
+}

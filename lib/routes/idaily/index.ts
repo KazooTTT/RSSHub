@@ -1,10 +1,30 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
+import { getCurrentPath } from '@/utils/helpers';
+const __dirname = getCurrentPath(import.meta.url);
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/:language?'],
+    name: '每日环球视野',
+    example: '/idaily',
+    maintainers: ['zphw', 'nczitzk'],
+    parameters: { language: '语言，见下表，默认为简体中文' },
+    radar: [
+        {
+            source: ['idai.ly/'],
+        },
+    ],
+    handler,
+    description: `| 简体中文 | 繁体中文 |
+  | -------- | -------- |
+  | zh-hans  | zh-hant  |`,
+};
+
+async function handler(ctx) {
     const { language = 'zh-hans' } = ctx.req.param();
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 100;
 
@@ -51,7 +71,7 @@ export default async (ctx) => {
     const title = $('title').text();
     const image = new URL('img/idaily/logo_2x.png', currentUrl).href;
 
-    ctx.set('data', {
+    return {
         item: items,
         title,
         link: currentUrl,
@@ -61,5 +81,5 @@ export default async (ctx) => {
         subtitle: $('meta[name="keywords"]').prop('content'),
         author: title.split(/\s/)[0],
         allowEmpty: true,
-    });
-};
+    };
+}

@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,9 +7,28 @@ import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/:category/:article_type?',
+    categories: ['traditional-media'],
+    example: '/nikkei/news/news',
+    parameters: { category: 'Category, see table below', article_type: 'Only includes free articles, set `free` to enable, disabled by default' },
+    radar: [
+        {
+            source: ['www.nikkei.com/:category/archive', 'www.nikkei.com/:category'],
+            target: '/:category',
+        },
+    ],
+    name: 'News',
+    maintainers: ['Arracc', 'ladeng07'],
+    handler,
+    description: `| 総合 | オピニオン | 経済    | 政治     | 金融      | マーケット | ビジネス | マネーのまなび | テック     | 国際          | スポーツ | 社会・調査 | 地域  | 文化    | ライフスタイル |
+  | ---- | ---------- | ------- | -------- | --------- | ---------- | -------- | -------------- | ---------- | ------------- | -------- | ---------- | ----- | ------- | -------------- |
+  | news | opinion    | economy | politics | financial | business   | 不支持   | 不支持         | technology | international | sports   | society    | local | culture | lifestyle      |`,
+};
+
+async function handler(ctx) {
     const baseUrl = 'https://www.nikkei.com';
     const { category, article_type = 'paid' } = ctx.req.param();
     let url = '';
@@ -19,18 +39,18 @@ export default async (ctx) => {
     const $ = load(data);
 
     let categoryName = '';
-    const listSelector = $('div#CONTENTS_MAIN').children('div.m-miM09').not('.PRa');
-    const paidSelector = 'span.m-iconMember';
+    const listSelector = $('[class^="container_"]  [class^="default_"]:has(article)');
+    const paidSelector = 'img[class^="icon_"]';
 
     let list = listSelector.toArray().map((item) => {
         item = $(item);
         item.find('p a').remove();
         return {
-            title: item.find('.m-miM09_titleL').text(),
-            link: `${baseUrl}${item.find('.m-miM09_title a').attr('href')}`,
-            image: item.find('.m-miM09_thumb img').removeAttr('style').removeAttr('width').removeAttr('height').parent().html(),
+            title: item.find('[class^="titleLink_"]').text(),
+            link: `${baseUrl}${item.find('[class^="title_"] a').attr('href')}`,
+            image: item.find('[class^="image_"] img').removeAttr('style').removeAttr('width').removeAttr('height').parent().html(),
             category: item
-                .find('.m-miM09_keyword a')
+                .find('[class^="topicItem_"] a')
                 .toArray()
                 .map((item) => $(item).text()),
             paywall: !!item.find(paidSelector).length,
@@ -80,12 +100,12 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: '日本経済新聞 - ' + categoryName,
         description: $('meta[name="description"]').attr('content'),
         link: url,
         image: $('meta[property="og:image"]').attr('content'),
         language: 'ja',
         item: article_type === 'free' ? items.filter((item) => !item.paywall) : items,
-    });
-};
+    };
+}

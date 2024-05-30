@@ -1,20 +1,52 @@
+import { Route } from '@/types';
 import utils from './utils';
-import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
+import ofetch from '@/utils/ofetch';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/playlist/:id',
+    categories: ['multimedia'],
+    example: '/spotify/playlist/4UBVy1LttvodwivPUuwJk2',
+    parameters: { id: 'Playlist ID' },
+    features: {
+        requireConfig: [
+            {
+                name: 'SPOTIFY_CLIENT_ID',
+                description: '',
+            },
+            {
+                name: 'SPOTIFY_CLIENT_SECRET',
+                description: '',
+            },
+        ],
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['open.spotify.com/playlist/:id'],
+        },
+    ],
+    name: 'Playlist',
+    maintainers: ['outloudvi'],
+    handler,
+};
+
+async function handler(ctx) {
     const token = await utils.getPublicToken();
     const id = ctx.req.param('id');
-    const meta = await got
-        .get(`https://api.spotify.com/v1/playlists/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-        .json();
+    const meta = await ofetch(`https://api.spotify.com/v1/playlists/${id}`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
     const tracks = meta.tracks.items;
 
-    ctx.set('data', {
+    return {
         title: meta.name,
         link: meta.external_urls.spotify,
         description: meta.description,
@@ -24,5 +56,5 @@ export default async (ctx) => {
             pubDate: parseDate(x.added_at),
         })),
         image: meta.images.length ? meta.images[0].url : undefined,
-    });
-};
+    };
+}

@@ -1,10 +1,9 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
-import { CookieJar } from 'tough-cookie';
-const cookieJar = new CookieJar();
 
 const host = 'https://www.sehuatang.net/';
 
@@ -38,7 +37,25 @@ const forumIdMaps = {
     hrxazp: '98', //  华人性爱自拍
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/bt/:subforumid?', '/picture/:subforumid', '/:subforumid?/:type?', '/:subforumid?', ''],
+    name: 'Unknown',
+    maintainers: ['qiwihui', 'junfengP', 'nczitzk'],
+    handler,
+    description: `**原创 BT 电影**
+
+  | 国产原创 | 亚洲无码原创 | 亚洲有码原创 | 高清中文字幕 | 三级写真 | VR 视频 | 素人有码 | 欧美无码 | 韩国主播 | 动漫原创 | 综合讨论 |
+  | -------- | ------------ | ------------ | ------------ | -------- | ------- | -------- | -------- | -------- | -------- | -------- |
+  | gcyc     | yzwmyc       | yzymyc       | gqzwzm       | sjxz     | vr      | srym     | omwm     | hgzb     | dmyc     | zhtl     |
+
+  **色花图片**
+
+  | 原创自拍 | 转贴自拍 | 华人街拍 | 亚洲性爱 | 欧美性爱 | 卡通动漫 | 套图下载 |
+  | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+  | yczp     | ztzp     | hrjp     | yzxa     | omxa     | ktdm     | ttxz     |`,
+};
+
+async function handler(ctx) {
     const subformName = ctx.req.param('subforumid') ?? 'gqzwzm';
     const subformId = subformName in forumIdMaps ? forumIdMaps[subformName] : subformName;
     const type = ctx.req.param('type');
@@ -47,11 +64,10 @@ export default async (ctx) => {
     const headers = {
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        Cookie: '_safe=vqd37pjm4p5uodq339yzk6b7jdt6oich',
     };
-    await cookieJar.setCookie('_safe=vqd37pjm4p5uodq339yzk6b7jdt6oich', host);
 
     const response = await got(link, {
-        cookieJar,
         headers,
     });
     const $ = load(response.data);
@@ -74,7 +90,6 @@ export default async (ctx) => {
         list.map((info) =>
             cache.tryGet(info.link, async () => {
                 const response = await got(info.link, {
-                    cookieJar,
                     headers,
                 });
 
@@ -122,9 +137,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `色花堂 - ${$('#pt > div:nth-child(1) > a:last-child').text()}`,
         link,
         item: out,
-    });
-};
+    };
+}

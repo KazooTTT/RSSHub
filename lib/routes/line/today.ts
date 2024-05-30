@@ -1,8 +1,29 @@
-import cache from '@/utils/cache';
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { baseUrl as rootUrl, parseList, parseItems } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/today/:edition?/:tab?',
+    categories: ['new-media'],
+    example: '/line/today',
+    parameters: { edition: 'Edition, see below, Taiwan by default', tab: 'Tag, can be found in URL, `top` by default' },
+    radar: [
+        {
+            source: ['today.line.me/'],
+        },
+    ],
+    name: 'TODAY',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'today.line.me/',
+    description: `Edition
+
+  | Taiwan | Thailand | Hong Kong |
+  | ------ | -------- | --------- |
+  | tw     | th       | hk        |`,
+};
+
+async function handler(ctx) {
     const edition = ctx.req.param('edition') || 'tw';
     const tab = ctx.req.param('tab') || 'top';
 
@@ -35,11 +56,11 @@ export default async (ctx) => {
 
     const list = parseList(response.data.items);
 
-    const items = await parseItems(list, cache.tryGet);
+    const items = await parseItems(list);
 
-    ctx.set('data', {
+    return {
         title: `${title} - Line Today`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

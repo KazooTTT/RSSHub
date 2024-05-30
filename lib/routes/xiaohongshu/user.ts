@@ -1,7 +1,16 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import { getUser } from './util';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/:user_id/:category',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const userId = ctx.req.param('user_id');
     const category = ctx.req.param('category');
     const url = `https://www.xiaohongshu.com/user/profile/${userId}`;
@@ -28,13 +37,13 @@ export default async (ctx) => {
         );
     const renderCollect = (collect) => {
         if (!collect) {
-            throw new Error('该用户已设置收藏内容不可见');
+            throw new InvalidParameterError('该用户已设置收藏内容不可见');
         }
         if (collect.code !== 0) {
             throw new Error(JSON.stringify(collect));
         }
         if (!collect.data.notes.length) {
-            throw new Error('该用户已设置收藏内容不可见');
+            throw new InvalidParameterError('该用户已设置收藏内容不可见');
         }
         return collect.data.notes.map((item) => ({
             title: item.display_title,
@@ -45,11 +54,11 @@ export default async (ctx) => {
         }));
     };
 
-    ctx.set('data', {
+    return {
         title,
         description,
         image,
         link: url,
         item: category === 'notes' ? renderNote(notes) : renderCollect(collect),
-    });
-};
+    };
+}

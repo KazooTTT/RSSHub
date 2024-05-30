@@ -1,17 +1,38 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import { isValidHost } from '@/utils/valid-host';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:username/:products',
+    categories: ['shopping'],
+    example: '/gumroad/afkmaster/Eve10',
+    parameters: { username: 'username, can be found in URL', products: 'products name, can be found in URL' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'Products',
+    maintainers: ['Fatpandac'],
+    handler,
+    description: `\`https://afkmaster.gumroad.com/l/Eve10\` -> \`/gumroad/afkmaster/Eve10\``,
+};
+
+async function handler(ctx) {
     const username = ctx.req.param('username');
     const products = ctx.req.param('products');
     if (!isValidHost(username)) {
-        throw new Error('Invalid username');
+        throw new InvalidParameterError('Invalid username');
     }
     const url = `https://${username}.gumroad.com/l/${products}`;
 
@@ -34,9 +55,9 @@ export default async (ctx) => {
         },
     ];
 
-    ctx.set('data', {
+    return {
         link: url,
         title: `Gumroad - ${userFullName}/${title}`,
         item,
-    });
-};
+    };
+}

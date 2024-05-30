@@ -1,8 +1,36 @@
+import InvalidParameterError from '@/errors/types/invalid-parameter';
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/category/:category',
+    categories: ['new-media'],
+    example: '/gcores/category/news',
+    parameters: { category: '分类名' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['gcores.com/:category'],
+        },
+    ],
+    name: '分类',
+    maintainers: ['MoguCloud', 'StevenRCE0'],
+    handler,
+    description: `| 资讯 | 视频   | 电台   | 文章     |
+  | ---- | ------ | ------ | -------- |
+  | news | videos | radios | articles |`,
+};
+
+async function handler(ctx) {
     const category = ctx.req.param('category');
     const url = `https://www.gcores.com/${category}`;
     const res = await got({
@@ -33,7 +61,7 @@ export default async (ctx) => {
     list = list.get();
 
     if (list.length > 0 && list.every((item) => item.url === undefined)) {
-        throw new Error('Article URL not found! Please submit an issue on GitHub.');
+        throw new InvalidParameterError('Article URL not found! Please submit an issue on GitHub.');
     }
 
     const out = await Promise.all(
@@ -49,9 +77,11 @@ export default async (ctx) => {
                 const itemPage = itemRes.data;
                 const $ = load(itemPage);
 
-                let articleData = await got(`https://www.gcores.com/gapi/v1${item.url}?include=media`);
+                const articleRaw = await got(`https://www.gcores.com/gapi/v1${item.url}?include=media,category,user`);
+                const articleData = articleRaw.data.data;
+                const articleMeta = articleRaw.data.included.find((i) => i.type === 'users' && i.id === articleData.relationships.user.data.id);
+                const author = articleMeta.attributes.nickname;
 
-                articleData = articleData.data.data;
                 let cover;
                 if (articleData.attributes.cover) {
                     cover = `<img src="https://image.gcores.com/${articleData.attributes.cover}" />`;
@@ -99,18 +129,19 @@ export default async (ctx) => {
                     description: cover + content,
                     link: articleUrl,
                     guid: articleUrl,
+                    author,
                     pubDate: new Date(articleData.attributes['published-at']),
                 };
                 return category === 'news' ? basicItem : { ...basicItem, category: item.category };
             });
         })
     );
-    ctx.set('data', {
+    return {
         title: feedTitle,
         link: url,
         item: out,
-    });
-};
+    };
+}
 
 function convertEntityToContent(entity) {
     const { type, data } = entity;

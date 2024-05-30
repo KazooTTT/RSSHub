@@ -1,9 +1,31 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { JSDOM } from 'jsdom';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/tag/:name?/:type?',
+    categories: ['social-media'],
+    example: '/lofter/tag/cosplay/date',
+    parameters: { name: 'tag name, such as `名侦探柯南`, `摄影` by default', type: 'ranking type, see below, new by default' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'Tag',
+    maintainers: ['hoilc', 'nczitzk', 'LucunJi'],
+    handler,
+    description: `| new  | date | week | month | total |
+  | ---- | ---- | ---- | ----- | ----- |
+  | 最新 | 日榜 | 周榜 | 月榜  | 总榜  |`,
+};
+
+async function handler(ctx) {
     const name = ctx.req.param('name') ?? '摄影';
     const type = ctx.req.param('type') ?? 'new';
     const pageSize = 20;
@@ -16,7 +38,7 @@ export default async (ctx) => {
     const response = await got({
         method: 'post',
         url: apiUrl,
-        form: {
+        body: new URLSearchParams({
             callCount: 1,
             scriptSessionId: '${scriptSessionId}187',
             httpSessionId: '',
@@ -33,7 +55,7 @@ export default async (ctx) => {
             'c0-param7': `number:${startingIndex}`,
             'c0-param8': 'number:0',
             batchId: 493053,
-        },
+        }),
     });
 
     const dom = new JSDOM(
@@ -86,9 +108,9 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `${name} - ${title} | LOFTER`,
         link: linkUrl,
         item: items,
-    });
-};
+    };
+}

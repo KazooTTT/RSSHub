@@ -1,12 +1,34 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/top/:board?',
+    categories: ['other'],
+    example: '/baidu/top',
+    parameters: { board: '榜单，默认为 `realtime`' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '热搜榜单',
+    maintainers: ['xyqfer'],
+    handler,
+    description: `| 热搜榜   | 小说榜 | 电影榜 | 电视剧榜 | 汽车榜 | 游戏榜 |
+  | -------- | ------ | ------ | -------- | ------ | ------ |
+  | realtime | novel  | movie  | teleplay | car    | game   |`,
+};
+
+async function handler(ctx) {
     const { board = 'realtime' } = ctx.req.param();
     const link = `https://top.baidu.com/board?tab=${board}`;
     const { data: response } = await got(link);
@@ -28,10 +50,10 @@ export default async (ctx) => {
         link: item.rawUrl,
     }));
 
-    ctx.set('data', {
+    return {
         title: `${data.curBoardName} - 百度热搜`,
         description: $('meta[name="description"]').attr('content'),
         link,
         item: items,
-    });
-};
+    };
+}

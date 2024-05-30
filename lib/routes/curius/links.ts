@@ -1,12 +1,36 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/links/:name',
+    categories: ['social-media'],
+    example: '/curius/links/yuu-yuu',
+    parameters: { name: 'Username, can be found in URL' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['curius.app/:name'],
+        },
+    ],
+    name: 'User',
+    maintainers: ['Ovler-Young'],
+    handler,
+};
+
+async function handler(ctx) {
     const username = ctx.req.param('name');
 
     const name_response = await got(`https://curius.app/api/users/${username}`, {
@@ -36,11 +60,11 @@ export default async (ctx) => {
         guid: `curius:${username}:${item.id}`,
     }));
 
-    ctx.set('data', {
+    return {
         title: `${name} - Curius`,
         link: `https://curius.app/${username}`,
         description: `${name} - Curius`,
         allowEmpty: true,
         item: items,
-    });
-};
+    };
+}

@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -5,8 +6,16 @@ import iconv from 'iconv-lite';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import { isValidHost } from '@/utils/valid-host';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:site?/:category{.+}?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { site = 'www' } = ctx.req.param();
     let { category = site === 'www' ? '59476' : '' } = ctx.req.param();
     category = site === 'cpc' && category === '24h' ? '87228' : category;
@@ -14,7 +23,7 @@ export default async (ctx) => {
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 30;
 
     if (!isValidHost(site)) {
-        throw new Error('Invalid site');
+        throw new InvalidParameterError('Invalid site');
     }
     const rootUrl = `http://${site}.people.com.cn`;
     const currentUrl = new URL(`GB/${category}`, rootUrl).href;
@@ -71,9 +80,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: $('title').text(),
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

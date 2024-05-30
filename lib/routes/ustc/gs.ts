@@ -1,8 +1,10 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
 const map = new Map([
     ['tzgg', { title: '中国科学技术大学研究生院 - 通知公告', id: '9' }],
@@ -11,11 +13,39 @@ const map = new Map([
 
 const host = 'https://gradschool.ustc.edu.cn';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/gs/:type?',
+    categories: ['university'],
+    example: '/ustc/gs/tzgg',
+    parameters: { type: '分类，见下表，默认为通知公告' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['gradschool.ustc.edu.cn/'],
+            target: '/gs',
+        },
+    ],
+    name: '研究生院',
+    maintainers: ['jasongzy'],
+    handler,
+    url: 'gradschool.ustc.edu.cn/',
+    description: `| 通知公告 | 新闻动态 |
+  | -------- | -------- |
+  | tzgg     | xwdt     |`,
+};
+
+async function handler(ctx) {
     const type = ctx.req.param('type') ?? 'tzgg';
     const info = map.get(type);
     if (!info) {
-        throw new Error('invalid type');
+        throw new InvalidParameterError('invalid type');
     }
     const id = info.id;
 
@@ -52,9 +82,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: info.title,
         link: `${host}/column/${id}`,
         item: items,
-    });
-};
+    };
+}

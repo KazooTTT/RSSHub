@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -5,7 +6,7 @@ import cache from '@/utils/cache';
 import got from '@/utils/got';
 import dayjs from 'dayjs';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
 const host = 'http://data.guduodata.com';
 
@@ -30,7 +31,31 @@ const types = {
     },
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/daily',
+    categories: ['other'],
+    example: '/guduodata/daily',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['data.guduodata.com/'],
+        },
+    ],
+    name: '日榜',
+    maintainers: ['Gem1ni'],
+    handler,
+    url: 'data.guduodata.com/',
+};
+
+async function handler() {
     const now = dayjs().valueOf();
     // yestoday
     const yestoday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
@@ -43,7 +68,7 @@ export default async (ctx) => {
             url: `${host}/show/datalist?type=DAILY&category=${category.toUpperCase()}&date=${yestoday}`,
         }))
     );
-    ctx.set('data', {
+    return {
         title: `骨朵数据 - 日榜`,
         link: host,
         description: yestoday,
@@ -63,5 +88,5 @@ export default async (ctx) => {
                 })
             )
         ),
-    });
-};
+    };
+}

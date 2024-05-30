@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,12 +7,37 @@ import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import { puppeteerGet } from './utils';
 import puppeteer from '@/utils/puppeteer';
 
-export default async (ctx) => {
-    const baseUrl = 'https://www.picnob.com';
+export const route: Route = {
+    path: '/user/:id',
+    categories: ['social-media'],
+    example: '/picnob/user/xlisa_olivex',
+    parameters: { id: 'Instagram id' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: true,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['picnob.com/profile/:id/*'],
+            target: '/user/:id',
+        },
+    ],
+    name: 'User Profile - Picnob',
+    maintainers: ['TonyRL', 'micheal-death'],
+    handler,
+};
+
+async function handler(ctx) {
+    // NOTE: 'picnob' is still available, but all requests to 'picnob' will be redirected to 'pixwox' eventually
+    const baseUrl = 'https://www.pixwox.com';
     const id = ctx.req.param('id');
     const url = `${baseUrl}/profile/${id}/`;
 
@@ -27,8 +53,8 @@ export default async (ctx) => {
             },
         });
         html = data;
-    } catch (error) {
-        if (error.message.includes('code 403')) {
+    } catch (error: any) {
+        if (error.message.includes('403')) {
             html = await puppeteerGet(url, browser);
             usePuppeteer = true;
         }
@@ -71,7 +97,7 @@ export default async (ctx) => {
                         ...new Set(
                             $('.post_slide a')
                                 .toArray()
-                                .map((a) => {
+                                .map((a: any) => {
                                     a = $(a);
                                     return {
                                         ori: a.attr('href'),
@@ -93,11 +119,11 @@ export default async (ctx) => {
     );
     await browser.close();
 
-    ctx.set('data', {
+    return {
         title: `${profileName} (@${id}) - Picnob`,
         description: $('.info .sum').text(),
         link: url,
         image: $('.ava .pic img').attr('src'),
         item: list,
-    });
-};
+    };
+}

@@ -1,8 +1,10 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import iconv from 'iconv-lite';
 import { parseDate } from '@/utils/parse-date';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
 const rootUrl = 'https://news.163.com';
 
@@ -76,16 +78,51 @@ const timeRange = {
     },
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/rank/:category?/:type?/:time?',
+    categories: ['new-media'],
+    example: '/163/news/rank/whole/click/day',
+    parameters: {
+        category: '新闻分类，参见下表，默认为“全站”',
+        type: '排行榜类型，“点击榜”对应`click`，“跟贴榜”对应`follow`，默认为“点击榜”',
+        time: '统计时间，“1小时”对应`hour`，“24小时”对应`day`，“本周”对应`week`，“本月”对应`month`，默认为“24小时”',
+    },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '排行榜',
+    maintainers: ['nczitzk'],
+    handler,
+    description: `:::tip
+  全站新闻 **点击榜** 的统计时间仅包含 “24 小时”、“本周”、“本月”，不包含 “1 小时”。即可用的\`time\`参数为\`day\`、\`week\`、\`month\`。
+
+  其他分类 **点击榜** 的统计时间仅包含 “1 小时”、“24 小时”、“本周”。即可用的\`time\`参数为\`hour\`、\`day\`、\`week\`。
+
+  而所有分类（包括全站）的 **跟贴榜** 的统计时间皆仅包含 “24 小时”、“本周”、“本月”。即可用的\`time\`参数为\`day\`、\`week\`、\`month\`。
+  :::
+
+  新闻分类：
+
+  | 全站  | 新闻 | 娱乐          | 体育   | 财经  | 科技 | 汽车 | 女人 | 房产  | 游戏 | 旅游   | 教育 |
+  | ----- | ---- | ------------- | ------ | ----- | ---- | ---- | ---- | ----- | ---- | ------ | ---- |
+  | whole | news | entertainment | sports | money | tech | auto | lady | house | game | travel | edu  |`,
+};
+
+async function handler(ctx) {
     const category = ctx.req.param('category') || 'whole';
     const type = ctx.req.param('type') || 'click';
     const time = ctx.req.param('time') || 'day';
 
     const cfg = config[category];
     if (!cfg) {
-        throw new Error('Bad category. See <a href="https://docs.rsshub.app/routes/new-media#wang-yi-xin-wen-pai-hang-bang">docs</a>');
+        throw new InvalidParameterError('Bad category. See <a href="https://docs.rsshub.app/routes/new-media#wang-yi-xin-wen-pai-hang-bang">docs</a>');
     } else if ((category !== 'whole' && type === 'click' && time === 'month') || (category === 'whole' && type === 'click' && time === 'hour') || (type === 'follow' && time === 'hour')) {
-        throw new Error('Bad timeRange range. See <a href="https://docs.rsshub.app/routes/new-media#wang-yi-xin-wen-pai-hang-bang">docs</a>');
+        throw new InvalidParameterError('Bad timeRange range. See <a href="https://docs.rsshub.app/routes/new-media#wang-yi-xin-wen-pai-hang-bang">docs</a>');
     }
 
     const currentUrl = category === 'money' ? cfg.link : `${rootUrl}${cfg.link}`;
@@ -148,9 +185,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `网易新闻${timeRange[time].title}${type === 'click' ? '点击' : '跟帖'}榜 - ${cfg.title}`,
         link: currentUrl,
         item: items.filter(Boolean),
-    });
-};
+    };
+}

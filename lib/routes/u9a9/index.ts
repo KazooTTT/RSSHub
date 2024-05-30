@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -6,7 +7,22 @@ import timezone from '@/utils/timezone';
 
 const baseUrl = 'https://u9a9.com';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/:preview?', '/search/:keyword/:preview?'],
+    example: '/u9a9/search/新片速递',
+    radar: [
+        {
+            source: ['u9a9.com/'],
+            target: '',
+        },
+    ],
+    name: 'Search',
+    maintainers: ['TonyRL'],
+    handler,
+    url: 'u9a9.com/',
+};
+
+async function handler(ctx) {
     const { preview, keyword } = ctx.req.param();
 
     let link;
@@ -59,9 +75,9 @@ export default async (ctx) => {
           )
         : list;
 
-    ctx.set('data', {
+    return {
         title,
         link,
         item: items,
-    });
-};
+    };
+}

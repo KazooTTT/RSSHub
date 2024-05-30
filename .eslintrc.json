@@ -46,6 +46,7 @@
         "prefer-arrow-callback": 2,
         "prefer-const": 2,
         "prefer-object-has-own": 2,
+        "no-useless-escape": 1,
         "prefer-regex-literals": ["error", { "disallowRedundantWrapping": true }],
         "require-await": 2,
         // typescript
@@ -58,7 +59,7 @@
         "unicorn/explicit-length-check": 0,
         "unicorn/filename-case": ["error", { "case": "kebabCase", "ignore": [".*\\.(yaml|yml)$", "RequestInProgress\\.js$"] }],
         "unicorn/new-for-builtins": 0,
-        "unicorn/no-array-callback-reference": 0,
+        "unicorn/no-array-callback-reference": 1,
         "unicorn/no-array-reduce": 1,
         "unicorn/no-await-expression-member": 0,
         "unicorn/no-empty-file": 1,
@@ -120,7 +121,8 @@
         "n/no-unpublished-import": 0,
         "n/no-unpublished-require": ["error", { "allowModules": ["tosource"] }],
         "prettier/prettier": 0,
-        "yml/quotes": ["error", { "prefer": "single" }]
+        "yml/quotes": ["error", { "prefer": "single" }],
+        "yml/no-empty-mapping-value": 0
     },
     "overrides": [
         {

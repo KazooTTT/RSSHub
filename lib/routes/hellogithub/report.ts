@@ -1,10 +1,11 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
 const types = {
     tiobe: '编程语言',
@@ -12,7 +13,18 @@ const types = {
     'db-engines': '数据库',
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/ranking/:type?', '/report/:type?'],
+    example: '/hellogithub/ranking',
+    name: '榜单报告',
+    maintainers: ['moke8', 'nczitzk'],
+    handler,
+    description: `| 编程语言 | 服务器   | 数据库     |
+  | -------- | -------- | ---------- |
+  | tiobe    | netcraft | db-engines |`,
+};
+
+async function handler(ctx) {
     let type = ctx.req.param('type') ?? 'tiobe';
 
     type = type === 'webserver' ? 'netcraft' : type === 'db' ? 'db-engines' : type;
@@ -51,9 +63,9 @@ export default async (ctx) => {
         },
     ];
 
-    ctx.set('data', {
+    return {
         title: `HelloGitHub - ${types[type]}排行榜`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

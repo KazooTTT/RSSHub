@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,14 +7,35 @@ import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
 const sorts = {
     hot: '热门',
     last: '最近',
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/article/:sort?/:id?'],
+    categories: ['programming'],
+    example: '/hellogithub/article',
+    parameters: { sort: '排序方式，见下表，默认为 `hot`，即热门', id: '标签 id，可在对应标签页 URL 中找到，默认为全部标签' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '文章',
+    maintainers: ['moke8', 'nczitzk'],
+    handler,
+    description: `| 热门 | 最近 |
+  | ---- | ---- |
+  | hot  | last |`,
+};
+
+async function handler(ctx) {
     const sort = ctx.req.param('sort') ?? 'hot';
     const id = ctx.req.param('id') ?? '';
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : 20;
@@ -39,7 +61,7 @@ export default async (ctx) => {
 
         const $ = load(tagResponse.data);
 
-        tag = $('meta[property="og:title"]').attr('content').split(' ').pop();
+        tag = $('meta[property="og:title"]')?.attr('content')?.split(' ').pop();
         buildId = tagResponse.data.match(/"buildId":"(.*?)",/)[1];
     }
 
@@ -98,9 +120,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `HelloGithub - ${sorts[sort]}${tag || ''}项目`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

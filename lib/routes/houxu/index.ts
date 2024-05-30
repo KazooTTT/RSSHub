@@ -1,12 +1,27 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    name: '热点',
+    maintainers: ['nczitzk'],
+    example: '/houxu',
+    path: '/',
+    radar: [
+        {
+            source: ['houxu.app/'],
+        },
+    ],
+    handler,
+    url: 'houxu.app/',
+};
+
+async function handler(ctx) {
     const rootUrl = 'https://houxu.app';
     const apiUrl = `${rootUrl}/api/1/records/index?limit=${ctx.req.query('limit') ?? 50}`;
 
@@ -32,9 +47,9 @@ export default async (ctx) => {
         }),
     }));
 
-    ctx.set('data', {
+    return {
         title: '后续 - 热点',
         link: rootUrl,
         item: items,
-    });
-};
+    };
+}

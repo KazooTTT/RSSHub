@@ -1,25 +1,43 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { config } from '@/config';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
-    if (!config.ncm || !config.ncm.cookies) {
-        throw new Error('163 Music RSS is disabled due to the lack of <a href="https://docs.rsshub.app/install/#pei-zhi-bu-fen-rss-mo-kuai-pei-zhi">relevant config</a>');
-    }
+export const route: Route = {
+    path: '/music/playlist/:id',
+    categories: ['multimedia'],
+    example: '/163/music/playlist/35798529',
+    parameters: { id: '歌单 id, 可在歌单页 URL 中找到' },
+    features: {
+        requireConfig: [
+            {
+                name: 'NCM_COOKIES',
+                optional: true,
+                description: '网易云音乐登陆后的 cookie 值，可在浏览器控制台通过`document.cookie`获取。',
+            },
+        ],
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '歌单歌曲',
+    maintainers: ['DIYgod'],
+    handler,
+};
 
+async function handler(ctx) {
     const id = ctx.req.param('id');
 
-    const response = await got.post('https://music.163.com/api/v3/playlist/detail', {
+    const response = await got.get(`https://music.163.com/api/v3/playlist/detail?id=${id}`, {
         headers: {
             Referer: 'https://music.163.com/',
             Cookie: config.ncm.cookies,
-        },
-        form: {
-            id,
         },
     });
 
@@ -34,7 +52,7 @@ export default async (ctx) => {
     });
     const songs = songinfo.data.songs;
 
-    ctx.set('data', {
+    return {
         title: data.name,
         link: `https://music.163.com/#/playlist?id=${id}`,
         description: `网易云音乐歌单 - ${data.name}`,
@@ -54,5 +72,5 @@ export default async (ctx) => {
                 author: singer,
             };
         }),
-    });
-};
+    };
+}

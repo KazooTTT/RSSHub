@@ -1,12 +1,41 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import queryString from 'query-string';
 import { parseDate } from '@/utils/parse-date';
 import sanitizeHtml from 'sanitize-html';
+import { parseToken } from '@/routes/xueqiu/cookies';
 
 const rootUrl = 'https://xueqiu.com';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/:id/:type?',
+    categories: ['finance'],
+    example: '/xueqiu/user/8152922548',
+    parameters: { id: '用户 id, 可在用户主页 URL 中找到', type: '动态的类型, 不填则默认全部' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['xueqiu.com/u/:id'],
+            target: '/user/:id',
+        },
+    ],
+    name: '用户动态',
+    maintainers: ['imlonghao'],
+    handler,
+    description: `| 原发布 | 长文 | 问答 | 热门 | 交易 |
+  | ------ | ---- | ---- | ---- | ---- |
+  | 0      | 2    | 4    | 9    | 11   |`,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const type = ctx.req.param('type') || 10;
     const source = type === '11' ? '买卖' : '';
@@ -19,12 +48,7 @@ export default async (ctx) => {
         11: '交易',
     };
 
-    const res1 = await got({
-        method: 'get',
-        url: rootUrl,
-    });
-    const token = res1.headers['set-cookie'].find((s) => s.startsWith('xq_a_token=')).split(';')[0];
-
+    const token = await parseToken();
     const res2 = await got({
         method: 'get',
         url: `${rootUrl}/v4/statuses/user_timeline.json`,
@@ -59,7 +83,7 @@ export default async (ctx) => {
                 const description = item.description + retweetedStatus;
 
                 return {
-                    title: item.title ?? sanitizeHtml(description, { allowedTags: [], allowedAttributes: {} }),
+                    title: item.title || sanitizeHtml(description, { allowedTags: [], allowedAttributes: {} }),
                     description: item.text ? item.text + retweetedStatus : description,
                     pubDate: parseDate(item.created_at),
                     link: rootUrl + item.target,
@@ -68,10 +92,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `${data[0].user.screen_name} 的雪球${typename[type]}动态`,
         link: `${rootUrl}/u/${id}`,
         description: `${data[0].user.screen_name} 的雪球${typename[type]}动态`,
         item: items,
-    });
-};
+    };
+}

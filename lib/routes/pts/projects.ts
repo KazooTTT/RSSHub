@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -5,9 +6,33 @@ import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/projects',
+    categories: ['traditional-media'],
+    example: '/pts/projects',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['news.pts.org.tw/projects', 'news.pts.org.tw/'],
+        },
+    ],
+    name: '數位敘事',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'news.pts.org.tw/projects',
+};
+
+async function handler() {
     const rootUrl = 'https://news.pts.org.tw';
     const currentUrl = `${rootUrl}/projects`;
 
@@ -37,11 +62,11 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: $('title')
             .text()
             .replace(/第\d+頁 ｜ /, ''),
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

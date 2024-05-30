@@ -5,7 +5,7 @@ import { parseDate } from '@/utils/parse-date';
 
 const host = 'https://bjwb.seiee.sjtu.edu.cn';
 
-export default function (meta, extract) {
+export default function workerFactory(meta, extract) {
     return async (ctx) => {
         const { title, local, author } = meta(ctx);
 
@@ -32,10 +32,10 @@ export default function (meta, extract) {
             })
         );
 
-        ctx.set('data', {
+        return {
             title,
             link,
             item: out,
-        });
+        };
     };
 }

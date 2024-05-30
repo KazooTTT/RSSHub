@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,13 +7,43 @@ import got from '@/utils/got';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import MarkdownIt from 'markdown-it';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 const md = MarkdownIt({
     html: true,
 });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/topic/:topic?',
+    categories: ['new-media'],
+    example: '/utgd/topic/在线阅读专栏',
+    parameters: { topic: '专题，默认为在线阅读专栏' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['utgd.net/topic', 'utgd.net/'],
+            target: '/topic/:topic',
+        },
+    ],
+    name: '专题',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'utgd.net/topic',
+    description: `| 在线阅读专栏 | 卡片笔记专题 |
+  | ------------ | ------------ |
+
+  更多专栏请见 [专题广场](https://utgd.net/topic)`,
+};
+
+async function handler(ctx) {
     const topic = ctx.req.param('topic') ?? '在线阅读专栏';
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : 20;
 
@@ -28,7 +59,7 @@ export default async (ctx) => {
     const topicItems = response.data.filter((i) => i.title === topic);
 
     if (!topicItems) {
-        throw new Error(`No topic named ${topic}`);
+        throw new InvalidParameterError(`No topic named ${topic}`);
     }
 
     const topicItem = topicItems[0];
@@ -67,10 +98,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `UNTAG - ${topicItem.title}`,
         link: currentUrl,
         item: items,
         description: topicItem.summary,
-    });
-};
+    };
+}

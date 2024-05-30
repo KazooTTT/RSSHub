@@ -1,8 +1,29 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { config } from '@/config';
 import queryString from 'query-string';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/file/:user/:repo/:branch/:filepath{.+}',
+    example: '/github/file/DIYgod/RSSHub/master/README.md',
+    parameters: {
+        user: 'GitHub user or org name',
+        repo: 'repository name',
+        branch: 'branch name',
+        filepath: 'path of target file',
+    },
+    radar: [
+        {
+            source: ['github.com/:user/:repo/blob/:branch/*filepath'],
+            target: '/file/:user/:repo/:branch/:filepath',
+        },
+    ],
+    name: 'File Commits',
+    maintainers: ['zengxs'],
+    handler,
+};
+
+async function handler(ctx) {
     const user = ctx.req.param('user');
     const repo = ctx.req.param('repo');
     const branch = ctx.req.param('branch');
@@ -37,9 +58,9 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `GitHub File - ${user}/${repo}/${branch}/${filepath}`,
         link: fileUrl,
         item: resultItems,
-    });
-};
+    };
+}

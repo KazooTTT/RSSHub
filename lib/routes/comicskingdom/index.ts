@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,9 +7,33 @@ import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:name',
+    categories: ['anime'],
+    example: '/comicskingdom/pardon-my-planet',
+    parameters: { name: 'URL path of the strip on comicskingdom.com' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['comicskingdom.com/:name/*', 'comicskingdom.com/:name'],
+        },
+    ],
+    name: 'Archive',
+    maintainers: ['stjohnjohnson'],
+    handler,
+};
+
+async function handler(ctx) {
     const baseURL = 'https://comicskingdom.com';
     const name = ctx.req.param('name');
     const url = `${baseURL}/${name}/archive`;
@@ -26,7 +51,7 @@ export default async (ctx) => {
         .map((el) => $(el).find('a').first().attr('href'));
 
     if (links.length === 0) {
-        throw new Error(`Comic Not Found - ${name}`);
+        throw new InvalidParameterError(`Comic Not Found - ${name}`);
     }
     const items = await Promise.all(
         links.map((link) =>
@@ -54,11 +79,11 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: comic,
         link: url,
         image: $('.feature-logo').attr('src'),
         item: items,
         language: 'en-US',
-    });
-};
+    };
+}

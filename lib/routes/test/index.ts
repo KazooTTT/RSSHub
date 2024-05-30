@@ -1,12 +1,22 @@
+import { Route, DataItem } from '@/types';
 import { config } from '@/config';
 import got from '@/utils/got';
 import wait from '@/utils/wait';
 import cache from '@/utils/cache';
-import { DataItem } from '@/types';
+import { fetchArticle } from '@/utils/wechat-mp';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
 let cacheIndex = 0;
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:id/:params?',
+    name: 'Test',
+    maintainers: ['DIYgod', 'NeverBehave'],
+    handler,
+};
+
+async function handler(ctx) {
     if (ctx.req.param('id') === 'error') {
         throw new Error('Error test');
     }
@@ -15,6 +25,12 @@ export default async (ctx) => {
             method: 'get',
             url: 'https://httpbingo.org/status/404',
         });
+    }
+    if (ctx.req.param('id') === 'config-not-found-error') {
+        throw new ConfigNotFoundError('Test config not found error');
+    }
+    if (ctx.req.param('id') === 'invalid-parameter-error') {
+        throw new InvalidParameterError('Test invalid parameter error');
     }
     let item: DataItem[] = [];
     switch (ctx.req.param('id')) {
@@ -72,13 +88,9 @@ export default async (ctx) => {
             break;
 
         case 'cache': {
-            const description = await cache.tryGet(
-                'test',
-                () => ({
-                    text: `Cache${++cacheIndex}`,
-                }),
-                config.cache.routeExpire * 2
-            );
+            const description = await cache.tryGet('test', () => ({
+                text: `Cache${++cacheIndex}`,
+            }));
             item.push({
                 title: 'Cache Title',
                 description: description.text,
@@ -364,6 +376,10 @@ export default async (ctx) => {
         await wait(1000);
     }
 
+    if (ctx.req.param('id') === 'slow4') {
+        await wait(4000);
+    }
+
     if (ctx.req.query('mode') === 'fulltext') {
         item = [
             {
@@ -373,7 +389,16 @@ export default async (ctx) => {
         ];
     }
 
-    ctx.set('data', {
+    if (ctx.req.param('id') === 'wechat-mp') {
+        const params = ctx.req.param('params');
+        if (!params) {
+            throw new InvalidParameterError('Invalid parameter');
+        }
+        const mpUrl = 'https:/mp.weixin.qq.com/s' + (params.includes('&') ? '?' : '/') + params;
+        item = [await fetchArticle(mpUrl)];
+    }
+
+    return {
         title: `Test ${ctx.req.param('id')}`,
         itunes_author: ctx.req.param('id') === 'enclosure' ? 'DIYgod' : null,
         link: 'https://github.com/DIYgod/RSSHub',
@@ -381,5 +406,5 @@ export default async (ctx) => {
         allowEmpty: ctx.req.param('id') === 'allow_empty',
         description:
             ctx.req.param('id') === 'complicated' ? '<img src="http://mock.com/DIYgod/DIYgod/RSSHub">' : ctx.req.param('id') === 'multimedia' ? '<video src="http://mock.com/DIYgod/DIYgod/RSSHub"></video>' : 'A test route for RSSHub',
-    });
-};
+    };
+}

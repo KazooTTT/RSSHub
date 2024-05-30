@@ -1,10 +1,34 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import auth from './auth';
-import utils from '../utils';
+import { processImage } from '../utils';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
-    const xhuCookie = await auth.getCookie(ctx);
+export const route: Route = {
+    path: '/xhu/topic/:topicId',
+    categories: ['social-media'],
+    example: '/zhihu/xhu/topic/19566035',
+    parameters: { topicId: '话题ID' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['www.zhihu.com/topic/:topicId/:type'],
+        },
+    ],
+    name: 'xhu - 话题',
+    maintainers: ['JimenezLi'],
+    handler,
+};
+
+async function handler(ctx) {
+    const xhuCookie = await auth.getCookie();
     const topicId = ctx.req.param('topicId');
     const link = `https://www.zhihu.com/topic/${topicId}/newest`;
     const url = `https://api.zhihuvvv.workers.dev/topics/${topicId}/feeds/timeline_activity?before_id=0&limit=20`;
@@ -19,7 +43,7 @@ export default async (ctx) => {
     });
     const listRes = response.data.data;
 
-    ctx.set('data', {
+    return {
         title: `知乎话题-${topicId}`,
         link,
         item: listRes.map(({ target: item }) => {
@@ -27,13 +51,13 @@ export default async (ctx) => {
             let title = '';
             let description = '';
             let link = '';
-            let pubDate = '';
+            let pubDate = new Date();
             let author = '';
 
             switch (type) {
                 case 'answer':
                     title = `${item.question.title}-${item.author.name}的回答：${item.excerpt}`;
-                    description = `<strong>${item.question.title}</strong><br>${item.author.name}的回答<br/>${utils.ProcessImage(item.content)}`;
+                    description = `<strong>${item.question.title}</strong><br>${item.author.name}的回答<br/>${processImage(item.content)}`;
                     link = `https://www.zhihu.com/question/${item.question.id}/answer/${item.id}`;
                     pubDate = parseDate(item.updated_time * 1000);
                     author = item.author.name;
@@ -66,5 +90,5 @@ export default async (ctx) => {
                 link,
             };
         }),
-    });
-};
+    };
+}

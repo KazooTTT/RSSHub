@@ -1,11 +1,13 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import { config } from '@/config';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
 const rootUrl = 'https://kyfw.12306.cn';
 
@@ -49,7 +51,25 @@ function getStationInfo(stationName) {
     });
 }
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:date/:from/:to/:type?',
+    categories: ['travel'],
+    example: '/12306/2022-02-19/重庆/永川东',
+    parameters: { date: '时间，格式为（YYYY-MM-DD）', from: '始发站', to: '终点站', type: '售票类型，成人和学生可选，默认为成人' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '售票信息',
+    maintainers: ['Fatpandac'],
+    handler,
+};
+
+async function handler(ctx) {
     const date = ctx.req.param('date');
     const fromStationInfo = await getStationInfo(ctx.req.param('from'));
     const toStationInfo = await getStationInfo(ctx.req.param('to'));
@@ -66,7 +86,7 @@ export default async (ctx) => {
         },
     });
     if (response.data.data === undefined || response.data.data.length === 0) {
-        throw new Error('没有找到相关车次，请检查参数是否正确');
+        throw new InvalidParameterError('没有找到相关车次，请检查参数是否正确');
     }
     const data = response.data.data.result;
     const map = response.data.data.map;
@@ -104,9 +124,9 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `${fromStationInfo.name} → ${toStationInfo.name} ${date}`,
         link: linkUrl,
         item: items,
-    });
-};
+    };
+}

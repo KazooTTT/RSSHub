@@ -1,9 +1,35 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import util from './utils';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 const news_url = 'https://www.nintendoswitch.com.cn';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/china',
+    categories: ['game'],
+    example: '/nintendo/news/china',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['nintendoswitch.com.cn/'],
+        },
+    ],
+    name: '首页资讯（中国）',
+    maintainers: ['NeverBehave'],
+    handler,
+    url: 'nintendoswitch.com.cn/',
+};
+
+async function handler() {
     const response = await got(news_url);
 
     // 获取Nuxt对象
@@ -16,7 +42,7 @@ export default async (ctx) => {
         title: "8款新品开启预约：超级马力欧系列官方周边"
     */
     if (!result.newsList) {
-        throw new Error('新闻信息不存在，请报告这个问题');
+        throw new InvalidParameterError('新闻信息不存在，请报告这个问题');
     }
 
     let data = result.newsList.map((item) => ({
@@ -27,10 +53,10 @@ export default async (ctx) => {
 
     data = await util.ProcessNewsChina(data, cache);
 
-    ctx.set('data', {
+    return {
         title: 'Nintendo（中国大陆）主页资讯',
         link: 'https://www.nintendoswitch.com.cn',
         description: 'Nintendo 中国大陆官网刊登的资讯',
         item: data,
-    });
-};
+    };
+}

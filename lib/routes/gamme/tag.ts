@@ -1,13 +1,22 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { isValidHost } from '@/utils/valid-host';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:domain/tag/:tag',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { domain = 'news', tag } = ctx.req.param();
     if (!isValidHost(domain)) {
-        throw new Error('Invalid domain');
+        throw new InvalidParameterError('Invalid domain');
     }
     const baseUrl = `https://${domain}.gamme.com.tw`;
     const pageUrl = `${baseUrl}/tag/${tag}`;
@@ -52,11 +61,11 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `${tag} | ${domain === 'news' ? '宅宅新聞' : '西斯新聞'}`,
         description: $('meta[name=description]').attr('content'),
         link: pageUrl,
         image: domain === 'news' ? `${baseUrl}/blogico.ico` : `${baseUrl}/favicon.ico`,
         item: items,
-    });
-};
+    };
+}

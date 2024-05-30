@@ -1,12 +1,28 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/memory',
+    categories: ['new-media'],
+    example: '/houxu/memory',
+    radar: [
+        {
+            source: ['houxu.app/memory', 'houxu.app/'],
+        },
+    ],
+    name: '跟踪',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'houxu.app/memory',
+};
+
+async function handler(ctx) {
     const rootUrl = 'https://houxu.app';
     const apiUrl = `${rootUrl}/api/1/lives/updated?limit=${ctx.req.query('limit') ?? 50}`;
     const currentUrl = `${rootUrl}/memory`;
@@ -32,9 +48,9 @@ export default async (ctx) => {
         }),
     }));
 
-    ctx.set('data', {
+    return {
         title: '后续 - 跟踪',
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

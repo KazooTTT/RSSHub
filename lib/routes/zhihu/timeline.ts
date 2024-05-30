@@ -1,19 +1,50 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { config } from '@/config';
-import utils from './utils';
+import { processImage } from './utils';
 import { parseDate } from '@/utils/parse-date';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/timeline',
+    categories: ['social-media'],
+    example: '/zhihu/timeline',
+    parameters: {},
+    features: {
+        requireConfig: [
+            {
+                name: 'ZHIHU_COOKIES',
+                description: '',
+            },
+        ],
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '用户关注时间线',
+    maintainers: ['SeanChao'],
+    handler,
+    description: `:::warning
+  用户关注动态需要登录后的 Cookie 值，所以只能自建，详情见部署页面的配置模块。
+  :::`,
+};
+
+async function handler(ctx) {
     const cookie = config.zhihu.cookies;
     if (cookie === undefined) {
-        throw new Error('缺少知乎用户登录后的 Cookie 值');
+        throw new ConfigNotFoundError('缺少知乎用户登录后的 Cookie 值');
     }
-
     const response = await got({
         method: 'get',
-        url: `https://www.zhihu.com/api/v3/moments?desktop=true`,
+        url: `https://www.zhihu.com/api/v3/moments`,
         headers: {
             Cookie: cookie,
+        },
+        searchParams: {
+            desktop: true,
+            limit: ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : 15,
         },
     });
     const feeds = response.data.data;
@@ -72,18 +103,19 @@ export default async (ctx) => {
         if (!e || !e.target) {
             return {};
         }
+        const link = buildLink(e);
         return {
             title: `${e.action_text_tpl.replace('{}', buildActors(e))}: ${getOne([e.target.title, e.target.question ? e.target.question.title : ''])}`,
-            description: utils.ProcessImage(`<div>${getOne([e.target.content_html, getContent(e.target.content), e.target.detail, e.target.excerpt, ''])}</div>`),
+            description: processImage(`<div>${getOne([e.target.content_html, getContent(e.target.content), e.target.detail, e.target.excerpt, ''])}</div>`),
             pubDate: parseDate(e.updated_time * 1000),
-            link: buildLink(e),
+            link,
             author: e.target.author ? e.target.author.name : '',
-            guid: this.link,
+            guid: link,
         };
     };
 
     const out = feeds
-        .filter((e) => e && e.type && e.type !== 'feed_advert')
+        .filter((e) => e.verb && e.verb !== 'MEMBER_VOTEUP_ARTICLE' && e.verb !== 'MEMBER_VOTEUP_ANSWER')
         .map((e) => {
             if (e && e.type && e.type === 'feed_group') {
                 // A feed group contains a list of feeds whose structure is the same as a single feed
@@ -96,7 +128,7 @@ export default async (ctx) => {
                               .join('')
                         : '';
                 const pubDate = e.list && Array.isArray(e.list) && e.list.length > 0 ? parseDate(e.list[0].updated_time * 1000) : new Date();
-                const guid = `${title} ${pubDate}`;
+                const guid = e.link;
                 return {
                     title,
                     description,
@@ -107,9 +139,9 @@ export default async (ctx) => {
             return buildItem(e);
         });
 
-    ctx.set('data', {
+    return {
         title: `知乎关注动态`,
         link: `https://www.zhihu.com/follow`,
         item: out,
-    });
-};
+    };
+}

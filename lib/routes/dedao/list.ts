@@ -1,8 +1,33 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/list/:category?',
+    categories: ['new-media'],
+    example: '/dedao/list/年度日更',
+    parameters: { category: '分类名，默认为年度日更' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['igetget.com/'],
+        },
+    ],
+    name: '首页',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'igetget.com/',
+};
+
+async function handler(ctx) {
     const category = ctx.req.param('category') ?? '年度日更';
 
     const rootUrl = 'https://www.igetget.com';
@@ -19,7 +44,7 @@ export default async (ctx) => {
         url: listUrl,
     });
 
-    const currentUrl = `${rootUrl}${listResponse.data.match(new RegExp('<span>' + category + '<\\/span><a href="(.*)" rel="tag"><\\/a>'))[1].split('"')[0]}`;
+    const currentUrl = `${rootUrl}${listResponse.data.match(new RegExp('<span>' + category + String.raw`<\/span><a href="(.*)" rel="tag"><\/a>`))[1].split('"')[0]}`;
 
     const currentResponse = await got({
         method: 'get',
@@ -59,9 +84,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `得到 - ${category}`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

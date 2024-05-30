@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import MarkdownIt from 'markdown-it';
@@ -19,7 +20,27 @@ const typeDict = {
     },
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/comments/:user/:repo/:number?',
+    categories: ['programming'],
+    example: '/github/comments/DIYgod/RSSHub/8116',
+    parameters: {
+        user: 'User / Org name',
+        repo: 'Repo name',
+        number: 'Issue or pull number (if omitted: all)',
+    },
+    radar: [
+        {
+            source: ['github.com/:user/:repo/:type', 'github.com/:user/:repo/:type/:number'],
+            target: '/comments/:user/:repo/:number?',
+        },
+    ],
+    name: 'Issue / Pull Request comments',
+    maintainers: ['TonyRL', 'FliegendeWurst'],
+    handler,
+};
+
+async function handler(ctx) {
     const user = ctx.req.param('user');
     const repo = ctx.req.param('repo');
     const number = ctx.req.param('number') && isNaN(Number.parseInt(ctx.req.param('number'))) ? 1 : Number.parseInt(ctx.req.param('number'));
@@ -34,8 +55,8 @@ export default async (ctx) => {
                   Accept: 'application/vnd.github.v3+json',
               };
 
-    await (isNaN(number) ? allIssues(ctx, user, repo, limit, headers) : singleIssue(ctx, user, repo, number, limit, headers));
-};
+    return await (isNaN(number) ? allIssues(ctx, user, repo, limit, headers) : singleIssue(ctx, user, repo, number, limit, headers));
+}
 
 async function allIssues(ctx, user, repo, limit, headers) {
     const response = await got(`${apiUrl}/repos/${user}/${repo}/issues/comments`, {
@@ -65,26 +86,26 @@ async function allIssues(ctx, user, repo, limit, headers) {
         };
     });
 
-    const rateLimit = {
-        limit: Number.parseInt(response.headers['x-ratelimit-limit']),
-        remaining: Number.parseInt(response.headers['x-ratelimit-remaining']),
-        reset: parseDate(Number.parseInt(response.headers['x-ratelimit-reset']) * 1000),
-        resoure: response.headers['x-ratelimit-resource'],
-        used: Number.parseInt(response.headers['x-ratelimit-used']),
+    // response headers is broken due to #14922
+    // const rateLimit = {
+    //     limit: Number.parseInt(response.headers['x-ratelimit-limit']),
+    //     remaining: Number.parseInt(response.headers['x-ratelimit-remaining']),
+    //     reset: parseDate(Number.parseInt(response.headers['x-ratelimit-reset']) * 1000),
+    //     resoure: response.headers['x-ratelimit-resource'],
+    //     used: Number.parseInt(response.headers['x-ratelimit-used']),
+    // };
+
+    const ret = {
+        title: `${user}/${repo}: Issue & Pull request comments`,
+        link: `${rootUrl}/${user}/${repo}`,
+        item: items,
     };
 
-    ctx.set('data', {
-        title: `${user}/${repo}: Issue & Pull request comments`,
-        link: `${rootUrl}/${user}/${repo}`,
-        item: items,
-    });
-
     ctx.set('json', {
-        title: `${user}/${repo}: Issue & Pull request comments`,
-        link: `${rootUrl}/${user}/${repo}`,
-        item: items,
-        rateLimit,
+        ...ret,
+        // rateLimit,
     });
+    return ret;
 }
 
 async function singleIssue(ctx, user, repo, number, limit, headers) {
@@ -165,22 +186,21 @@ async function singleIssue(ctx, user, repo, number, limit, headers) {
         }
     }
 
-    ctx.set('data', {
+    const ret = {
         title: `${user}/${repo}: ${typeDict[type].title} #${number} - ${issue.title}`,
         link: issue.html_url,
         item: items,
-    });
+    };
 
     ctx.set('json', {
-        title: `${user}/${repo}: ${typeDict[type].title} #${number} - ${issue.title}`,
-        link: issue.html_url,
-        item: items,
-        rateLimit: {
-            limit: Number.parseInt(response.headers['x-ratelimit-limit']),
-            remaining: Number.parseInt(response.headers['x-ratelimit-remaining']),
-            reset: parseDate(Number.parseInt(response.headers['x-ratelimit-reset']) * 1000),
-            resoure: response.headers['x-ratelimit-resource'],
-            used: Number.parseInt(response.headers['x-ratelimit-used']),
-        },
+        ...ret,
+        // rateLimit: {
+        //     limit: Number.parseInt(response.headers['x-ratelimit-limit']),
+        //     remaining: Number.parseInt(response.headers['x-ratelimit-remaining']),
+        //     reset: parseDate(Number.parseInt(response.headers['x-ratelimit-reset']) * 1000),
+        //     resoure: response.headers['x-ratelimit-resource'],
+        //     used: Number.parseInt(response.headers['x-ratelimit-used']),
+        // },
     });
+    return ret;
 }

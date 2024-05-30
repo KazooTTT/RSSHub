@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -7,13 +8,37 @@ import parser from '@/utils/rss-parser';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 const allowRegion = new Set(['tw', 'hk']);
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:region?',
+    categories: ['new-media'],
+    example: '/eprice/tw',
+    parameters: { region: '地区，预设为 tw' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '最新消息',
+    maintainers: ['TonyRL'],
+    handler,
+    description: `地区：
+
+  | hk   | tw   |
+  | ---- | ---- |
+  | 香港 | 台湾 |`,
+};
+
+async function handler(ctx) {
     const region = ctx.req.param('region') ?? 'tw';
     if (!allowRegion.has(region)) {
-        throw new Error('Invalid region');
+        throw new InvalidParameterError('Invalid region');
     }
 
     const feed = await parser.parseURL(`https://www.eprice.com.${region}/news/rss.xml`);
@@ -83,21 +108,15 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    const ret = {
         title: feed.title,
         link: feed.link,
         description: feed.description,
         item: items,
         image: feed.image.url,
         language: feed.language,
-    });
+    };
 
-    ctx.set('json', {
-        title: feed.title,
-        link: feed.link,
-        description: feed.description,
-        item: items,
-        image: feed.image.url,
-        language: feed.language,
-    });
-};
+    ctx.set('json', ret);
+    return ret;
+}

@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -8,12 +9,20 @@ import { load } from 'cheerio';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:id?/:category{.+}?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { id = 'news', category = 'china' } = ctx.req.param();
     if (!isValidHost(id)) {
-        throw new Error('Invalid id');
+        throw new InvalidParameterError('Invalid id');
     }
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 30;
 
@@ -76,7 +85,7 @@ export default async (ctx) => {
 
     const image = $('a.logo0_b img').prop('src');
 
-    ctx.set('data', {
+    return {
         item: items,
         title: $('title').text(),
         link: currentUrl,
@@ -86,5 +95,5 @@ export default async (ctx) => {
         subtitle: $('meta[name="keywords"]').prop('content'),
         author: $('meta[name="author"]').prop('content'),
         allowEmpty: true,
-    });
-};
+    };
+}

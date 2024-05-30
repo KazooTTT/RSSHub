@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -7,7 +8,7 @@ import parser from '@/utils/rss-parser';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import logger from '@/utils/logger';
 
 const renderFanBox = (media) =>
@@ -21,7 +22,14 @@ const renderDesc = (media, desc) =>
         desc,
     });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:type?/:category?',
+    name: 'Unknown',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const type = ctx.req.param('type') ?? 'ins';
     const category = ctx.req.param('category') ?? (type === 'ins' ? 'all' : 's00001');
     const link = `https://news.mingpao.com/rss/${type}/${category}.xml`;
@@ -92,12 +100,12 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: feed.title,
         link: feed.link,
         description: feed.description,
         item: items,
         image: feed.image.url,
         language: feed.language,
-    });
-};
+    };
+}

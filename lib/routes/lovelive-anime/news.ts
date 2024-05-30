@@ -1,14 +1,40 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
-import * as path from 'node:path';
+import path from 'node:path';
 import { art } from '@/utils/render';
 const renderDescription = (desc) => art(path.join(__dirname, 'templates/description.art'), desc);
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/:option?',
+    categories: ['anime'],
+    example: '/lovelive-anime/news',
+    parameters: { option: 'Crawl full text when `option` is `detail`.' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['www.lovelive-anime.jp/', 'www.lovelive-anime.jp/news'],
+            target: '/news',
+        },
+    ],
+    name: 'Love Live! Official Website Latest NEWS',
+    maintainers: ['axojhf'],
+    handler,
+    url: 'www.lovelive-anime.jp/',
+};
+
+async function handler(ctx) {
     const rootUrl = 'https://www.lovelive-anime.jp/news/';
 
     const response = await got(rootUrl);
@@ -52,9 +78,9 @@ export default async (ctx) => {
         );
     }
 
-    ctx.set('data', {
+    return {
         title: 'lovelive official website news',
         link: 'https://www.lovelive-anime.jp/news/',
         item: items,
-    });
-};
+    };
+}

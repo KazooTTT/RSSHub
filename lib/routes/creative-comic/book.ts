@@ -1,13 +1,38 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import cache from '@/utils/cache';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
-import { getUuid, getBook, getChapter, getChapters, getImgEncrypted, getImgKey, decrypt, getRealKey, siteHost } from './utils';
+import path from 'node:path';
+import { getUuid, getBook, getChapter, getChapters, getImgEncrypted, getImgKey, decrypt, getRealKey, apiHost } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/book/:id/:coverOnly?/:quality?',
+    categories: ['anime'],
+    example: '/creative-comic/book/117',
+    parameters: { id: '漫畫 ID，可在 URL 中找到', coverOnly: '僅獲取封面，非 `true` 時將獲取**全部**頁面，預設 `true`', quality: '閱讀品質，標準畫質 `1`，高畫質 `2`，預設 `1`' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['creative-comic.tw/book/:id/*'],
+            target: '/:id',
+        },
+    ],
+    name: '漫畫',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const { id, coverOnly = 'true', quality = '1' } = ctx.req.param();
     const uuid = await getUuid(cache.tryGet);
     const {
@@ -37,7 +62,7 @@ export default async (ctx) => {
                                 const realKey = getRealKey(imgKey);
                                 const encrypted = await getImgEncrypted(p.id, quality);
 
-                                return cache.tryGet(`${siteHost}/fs/chapter_content/encrypt/${p.id}/${quality}`, () => decrypt(encrypted, realKey));
+                                return cache.tryGet(`${apiHost}/fs/chapter_content/encrypt/${p.id}/${quality}`, () => decrypt(encrypted, realKey));
                             })
                         );
                     }
@@ -59,12 +84,12 @@ export default async (ctx) => {
             })
     );
 
-    ctx.set('data', {
+    return {
         title: `${book.name} | CCC創作集`,
         description: `${book.brief} ${book.description}`,
         link: book.share_link,
         image: book.image1,
         item: items,
         language: 'zh-hant',
-    });
-};
+    };
+}

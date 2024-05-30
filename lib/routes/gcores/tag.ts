@@ -1,8 +1,35 @@
+import InvalidParameterError from '@/errors/types/invalid-parameter';
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/tag/:tag/:category?',
+    categories: ['new-media'],
+    example: '/gcores/tag/42/articles',
+    parameters: { tag: '标签名，可在选定标签分类页面的 URL 中找到，如视觉动物——42', category: '分类名' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['gcores.com/categories/:tag', 'gcores.com/'],
+            target: '/tag/:tag',
+        },
+    ],
+    name: '标签',
+    maintainers: ['StevenRCE0'],
+    handler,
+    description: `分类名同上。`,
+};
+
+async function handler(ctx) {
     const tag = ctx.req.param('tag');
     const category = ctx.req.param('category');
     const url = `https://www.gcores.com/categories/${tag + (category ? `?tab=${category}` : '')}`;
@@ -26,7 +53,7 @@ export default async (ctx) => {
         .get();
 
     if (list.length > 0 && list.every((item) => item.url === undefined)) {
-        throw new Error('Article URL not found! Please submit an issue on GitHub.');
+        throw new InvalidParameterError('Article URL not found! Please submit an issue on GitHub.');
     }
 
     const out = await Promise.all(
@@ -96,12 +123,12 @@ export default async (ctx) => {
             });
         })
     );
-    ctx.set('data', {
+    return {
         title: feedTitle,
         link: url,
         item: out,
-    });
-};
+    };
+}
 
 function convertEntityToContent(entity) {
     const { type, data } = entity;

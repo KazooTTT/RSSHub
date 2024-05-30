@@ -1,16 +1,40 @@
+import { Route } from '@/types';
 import got from '@/utils/got';
-import utils from './utils';
+import { header } from './utils';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/zhuanlan/:id',
+    categories: ['social-media'],
+    example: '/zhihu/zhuanlan/googledevelopers',
+    parameters: { id: '专栏 id，可在专栏主页 URL 中找到' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['zhuanlan.zhihu.com/:id'],
+        },
+    ],
+    name: '专栏',
+    maintainers: ['DIYgod'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
 
     const listRes = await got({
         method: 'get',
         url: `https://www.zhihu.com/api/v4/columns/${id}/items`,
         headers: {
-            ...utils.header,
+            ...header,
             Referer: `https://zhuanlan.zhihu.com/${id}`,
         },
     });
@@ -19,7 +43,7 @@ export default async (ctx) => {
         method: 'get',
         url: `https://www.zhihu.com/api/v4/columns/${id}/pinned-items`,
         headers: {
-            ...utils.header,
+            ...header,
             Referer: `https://zhuanlan.zhihu.com/${id}`,
         },
     });
@@ -49,7 +73,7 @@ export default async (ctx) => {
         let title = '';
         let link = '';
         let author = '';
-        let pubDate = '';
+        let pubDate: Date;
 
         switch (item.type) {
             case 'answer':
@@ -91,10 +115,10 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         description,
         item,
         title: `知乎专栏-${title}`,
         link: url,
-    });
-};
+    };
+}

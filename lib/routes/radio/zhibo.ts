@@ -1,13 +1,46 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import CryptoJS from 'crypto-js';
 
-export default async (ctx) => {
+const audio_types = {
+    m3u8: 'x-mpegURL',
+    mp3: 'mpeg',
+    mp4: 'mp4',
+    m4a: 'mp4',
+};
+
+export const route: Route = {
+    path: '/zhibo/:id',
+    categories: ['multimedia'],
+    example: '/radio/zhibo/1395528',
+    parameters: { id: '直播 id，可在对应点播页面的 URL 中找到' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: true,
+        supportScihub: false,
+    },
+    name: '直播',
+    maintainers: ['nczitzk'],
+    handler,
+    description: `如果订阅 [新闻和报纸摘要](http://www.radio.cn/pc-portal/sanji/zhibo_2.html?name=1395528)，其 URL 为 \`http://www.radio.cn/pc-portal/sanji/zhibo_2.html?name=1395528\`，可以得到 \`name\` 为 \`1395528\`
+
+  所以对应路由为 [\`/radio/zhibo/1395528\`](https://rsshub.app/radio/zhibo/1395528)
+
+  :::tip
+  查看更多电台直播节目，可前往 [电台直播](http://www.radio.cn/pc-portal/erji/radioStation.html)
+  :::`,
+};
+
+async function handler(ctx) {
     const KEY = 'f0fc4c668392f9f9a447e48584c214ee';
 
     const id = ctx.req.param('id');
@@ -42,8 +75,8 @@ export default async (ctx) => {
     const items = data.map((item) => {
         let enclosure_url = item.playUrlHigh ?? item.playUrlLow;
         enclosure_url = /\.m3u8$/.test(enclosure_url) ? item.downloadUrl : enclosure_url;
-
-        const enclosure_type = `audio/${enclosure_url.match(/\.(\w+)$/)[1]}`;
+        const file_ext = new URL(enclosure_url).pathname.split('.').pop();
+        const enclosure_type = file_ext ? `audio/${audio_types[file_ext]}` : '';
 
         const date = new Date(item.startTime);
         const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -65,12 +98,12 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `云听 - ${data[0].name}`,
         link: currentUrl,
         item: items,
         image: iconUrl,
         itunes_author: 'radio.cn',
         description: data[0].des,
-    });
-};
+    };
+}

@@ -1,10 +1,11 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import { load } from 'cheerio';
 import get_sec_page_data from './get-sec-page-data';
 
@@ -38,7 +39,28 @@ function get_user_url(rootUrl, ctx, sort) {
     }
     return userUrl;
 }
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/authors/:authorid/:sort/:pagelimit?', '/characters/:characterid/:sort/:pagelimit?', '/origins/:originid/:sort/:pagelimit?', '/search/:keyword/:sort/:pagelimit?', '/tags/:tagid/:sort/:pagelimit?'],
+    categories: ['anime'],
+    example: '/oreno3d/authors/3189/latest/1',
+    parameters: { authorid: 'Author id, can be found in URL', sort: 'Sort method, see the table above', pagelimit: 'The maximum number of pages to be crawled, the default is 1' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'Author Search',
+    maintainers: ['xueli_sherryli'],
+    handler,
+    description: `| favorites | hot | latest | popularity |
+  | --------- | --- | ------ | ---------- |
+  | favorites | hot | latest | popularity |`,
+};
+
+async function handler(ctx) {
     // 获取视频链接列表及标题
     function getLinksTitle(response) {
         const selector = 'a.box';
@@ -153,9 +175,9 @@ export default async (ctx) => {
         item: realItem,
     };
     // 生成RSS源码
-    ctx.set('data', {
+    return {
         title: `${data.title} - ${sortRename[sort]}(Page 1-${pagelimit})`,
         link: userUrl,
         item: data.item,
-    });
-};
+    };
+}

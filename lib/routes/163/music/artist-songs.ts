@@ -1,11 +1,30 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/music/artist/songs/:id',
+    categories: ['multimedia'],
+    example: '/163/music/artist/songs/2116',
+    parameters: { id: '歌手 id, 可在歌手详情页 URL 中找到' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '歌手歌曲',
+    maintainers: ['ZhongMingKun'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
 
     const { data } = await got(`https://music.163.com/api/v1/artist/songs`, {
@@ -33,10 +52,10 @@ export default async (ctx) => {
         link: `https://music.163.com/#/song?id=${song.id}`,
     }));
 
-    ctx.set('data', {
+    return {
         title: `${artist.name} - 歌手歌曲`,
         link: `https://music.163.com/#/artist?id=${id}`,
         description: `网易云音乐 - 歌手歌曲 - ${artist.name}`,
         item: items,
-    });
-};
+    };
+}

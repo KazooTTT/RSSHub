@@ -1,3 +1,4 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -5,6 +6,7 @@ import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
 import { finishArticleItem } from '@/utils/wechat-mp';
 import wait from '@/utils/wait';
+import RequestInProgressError from '@/errors/types/request-in-progress';
 
 const parsePage = ($item, hyperlinkSelector, timeSelector) => {
     const hyperlink = $item.find(hyperlinkSelector);
@@ -18,10 +20,23 @@ const parsePage = ($item, hyperlinkSelector, timeSelector) => {
     };
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/data258/:id?',
+    radar: [
+        {
+            source: ['mp.data258.com/', 'mp.data258.com/article/category/:id'],
+        },
+    ],
+    name: 'Unknown',
+    maintainers: ['Rongronggg9'],
+    handler,
+    url: 'mp.data258.com/',
+};
+
+async function handler(ctx) {
     // !!! here we must use a lock to prevent other requests to break the anti-anti-crawler workarounds !!!
     if ((await cache.get('data258:lock', false)) === '1') {
-        throw new Error('Another request is in progress, please try again later.');
+        throw new RequestInProgressError('Another request is in progress, please try again later.');
     }
     // !!! here no need to acquire the lock, because the MP/category page has no crawler detection !!!
 
@@ -55,7 +70,7 @@ export default async (ctx) => {
 
     // !!! double-check !!!
     if ((await cache.get('data258:lock', false)) === '1') {
-        throw new Error('Another request is in progress, please try again later.');
+        throw new RequestInProgressError('Another request is in progress, please try again later.');
     } else {
         // !!! here we acquire the lock because the jump page has crawler detection !!!
         await cache.set('data258:lock', '1', 60);
@@ -121,13 +136,13 @@ export default async (ctx) => {
 
     await Promise.all(items.map((item) => finishArticleItem(item, !!categoryPage)));
 
-    ctx.set('data', {
+    return {
         title,
         link: pageUrl,
         description,
         item: items,
-    });
-};
+    };
+}
 
 // TODO: login? the valid time for cookies seems to be short, and abusing account will probably get banned...
 // TODO: fetch full article for the official RSS feed? unless someone who is VIP contributes their RSS feed for test...

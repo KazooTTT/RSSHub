@@ -1,13 +1,44 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import utils from './utils';
 import { config } from '@/config';
 import { parseDate } from '@/utils/parse-date';
 import got from '@/utils/got';
 import { load } from 'cheerio';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/:username/:embed?',
+    categories: ['social-media', 'popular'],
+    example: '/youtube/user/@JFlaMusic',
+    parameters: { username: 'YouTuber username with @', embed: 'Default to embed the video, set to any value to disable embedding' },
+    features: {
+        requireConfig: [
+            {
+                name: 'YOUTUBE_KEY',
+                description: ' YouTube API Key, support multiple keys, split them with `,`, [API Key application](https://console.developers.google.com/)',
+            },
+        ],
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['www.youtube.com/user/:username'],
+            target: '/user/:username',
+        },
+    ],
+    name: 'Channel with username',
+    maintainers: ['DIYgod'],
+    handler,
+};
+
+async function handler(ctx) {
     if (!config.youtube || !config.youtube.key) {
-        throw new Error('YouTube RSS is disabled due to the lack of <a href="https://docs.rsshub.app/install/#pei-zhi-bu-fen-rss-mo-kuai-pei-zhi">relevant config</a>');
+        throw new ConfigNotFoundError('YouTube RSS is disabled due to the lack of <a href="https://docs.rsshub.app/deploy/config#route-specific-configurations">relevant config</a>');
     }
     const username = ctx.req.param('username');
     const embed = !ctx.req.param('embed');
@@ -26,7 +57,7 @@ export default async (ctx) => {
 
     const data = (await utils.getPlaylistItems(playlistId, 'snippet', cache)).data.items;
 
-    ctx.set('data', {
+    return {
         title: `${channelName || username} - YouTube`,
         link: username.startsWith('@') ? `https://www.youtube.com/${username}` : `https://www.youtube.com/user/${username}`,
         description: `YouTube user ${username}`,
@@ -44,5 +75,5 @@ export default async (ctx) => {
                     author: snippet.videoOwnerChannelTitle,
                 };
             }),
-    });
-};
+    };
+}

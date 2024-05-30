@@ -1,11 +1,13 @@
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import Parser from 'rss-parser';
 import { art } from '@/utils/render';
-import * as path from 'node:path';
+import path from 'node:path';
 import dayjs from 'dayjs';
 import { fallback, queryToBoolean } from '@/utils/readable-social';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 
 const titleRegex = /(.+)\s+is\s+([A-Z]+)\s+\((.+)\)/;
 
@@ -53,7 +55,37 @@ class Monitor {
 
 const rootURL = 'https://rss.uptimerobot.com';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/rss/:id/:routeParams?',
+    categories: ['forecast'],
+    example: '/uptimerobot/rss/u358785-e4323652448755805d668f1a66506f2f',
+    parameters: {
+        id: 'the last part of your RSS URL (e.g. `u358785-e4323652448755805d668f1a66506f2f` for `https://rss.uptimerobot.com/u358785-e4323652448755805d668f1a66506f2f`)',
+        routeParams: 'extra parameters, see the table below',
+    },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: [
+        {
+            source: ['rss.uptimerobot.com/:id'],
+            target: '/rss/:id',
+        },
+    ],
+    name: 'RSS',
+    maintainers: ['Rongronggg9'],
+    handler,
+    description: `| Key    | Description                                                              | Accepts        | Defaults to |
+  | ------ | ------------------------------------------------------------------------ | -------------- | ----------- |
+  | showID | Show monitor ID (disabling it will also disable link for each RSS entry) | 0/1/true/false | true        |`,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const routeParams = Object.fromEntries(new URLSearchParams(ctx.req.param('routeParams')));
     const showID = fallback(undefined, queryToBoolean(routeParams.showID), true);
@@ -70,12 +102,12 @@ export default async (ctx) => {
     const items = rss.items.reverse().map((item) => {
         const titleMatch = item.title.match(titleRegex);
         if (!titleMatch) {
-            throw new Error('Unexpected title, please open an issue.');
+            throw new InvalidParameterError('Unexpected title, please open an issue.');
         }
         const [monitorName, status, id] = titleMatch.slice(1);
 
         if (id !== item.link) {
-            throw new Error('Monitor ID mismatch, please open an issue.');
+            throw new InvalidParameterError('Monitor ID mismatch, please open an issue.');
         }
 
         // id could be a URL, a domain, an IP address, or a hex string. fix it
@@ -94,7 +126,7 @@ export default async (ctx) => {
         } else if (status === 'DOWN') {
             monitor.down(duration);
         } else {
-            throw new Error('Unexpected status, please open an issue.');
+            throw new InvalidParameterError('Unexpected status, please open an issue.');
         }
 
         const desc = art(path.join(__dirname, 'templates/rss.art'), {
@@ -119,11 +151,11 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: 'Uptime Robot - RSS (enhanced)',
         description: rss.description,
         link: rssUrl,
         item: items,
         image: 'https://uptimerobot.com/favicon.ico',
-    });
-};
+    };
+}

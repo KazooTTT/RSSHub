@@ -1,24 +1,44 @@
-import got from '@/utils/got';
+import { Route } from '@/types';
+import ofetch from '@/utils/ofetch';
 import { load } from 'cheerio';
 const url = 'https://www.sigsac.org/';
 import { parseDate } from '@/utils/parse-date';
 // https://www.sigsac.org/ccs/CCS2022/program/accepted-papers.html
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/ccs',
+    categories: ['journal'],
+    example: '/sigsac/ccs',
+    radar: [
+        {
+            source: ['sigsac.org/ccs.html', 'sigsac.org/'],
+        },
+    ],
+    name: 'The ACM Conference on Computer and Communications Security',
+    maintainers: ['ZeddYu'],
+    handler,
+    url: 'sigsac.org/ccs.html',
+    description: 'Return results from 2020',
+};
+
+async function handler() {
     const last = new Date().getFullYear() + 1;
     const yearList = Array.from({ length: last - 2020 }, (_, v) => `${url}ccs/CCS${v + 2020}/`);
-    const yearResponses = await got.all(yearList.map((url) => got(url)));
+    const yearResponses = await Promise.allSettled(yearList.map((url) => ofetch(url)));
 
-    const urlList = yearResponses.map((response) => {
-        const $ = load(response.data);
-        return new URL($('a:contains("Accepted Papers")').attr('href'), response.url).href;
-    });
+    const urlList = yearResponses
+        .map((response, i) => {
+            const $ = load(response.value);
+            const href = $('a:contains("Accepted Papers")').attr('href');
+            return href && new URL($('a:contains("Accepted Papers")').attr('href')!, yearList[i]).href;
+        })
+        .filter(Boolean);
 
-    const responses = await got.all(urlList.map((url) => got(url)));
+    const responses = await Promise.allSettled(urlList.map((url) => ofetch(url)));
 
-    const items = responses.map((response) => {
-        const $ = load(response.data);
-        const link = response.url;
+    const items = responses.flatMap((response, i) => {
+        const $ = load(response.value);
+        const link = urlList[i];
         const paperSection = $('div.papers-item')
             .toArray()
             .map((item) => {
@@ -47,11 +67,11 @@ export default async (ctx) => {
         return paperSection.length ? paperSection : paperTable;
     });
 
-    ctx.set('data', {
+    return {
         title: 'ACM CCS',
         link: url,
         description: 'The ACM Conference on Computer and Communications Security (CCS) Accepted Papers',
         allowEmpty: true,
-        item: items.flat(),
-    });
-};
+        item: items,
+    };
+}

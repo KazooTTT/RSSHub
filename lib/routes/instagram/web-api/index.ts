@@ -1,18 +1,47 @@
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import { CookieJar } from 'tough-cookie';
 import { config } from '@/config';
 import { renderItems } from '../common-utils';
 import { baseUrl, COOKIE_URL, checkLogin, getUserInfo, getUserFeedItems, getTagsFeedItems, getLoggedOutTagsFeedItems, renderGuestItems } from './utils';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/2/:category/:key',
+    categories: ['social-media'],
+    example: '/instagram/2/user/stefaniejoosten',
+    parameters: { category: 'Feed category, see table below', key: 'Username / Hashtag name' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'User Profile / Hashtag',
+    maintainers: ['TonyRL'],
+    handler,
+    description: `:::tip
+You may need to setup cookie for a less restrictive rate limit and private profiles.
+:::
+
+
+| User timeline | Hashtag |
+| ------------- | ------- |
+| user          | tags    |`,
+};
+
+async function handler(ctx) {
     // if (!config.instagram || !config.instagram.cookie) {
-    //     throw Error('Instagram RSS is disabled due to the lack of <a href="https://docs.rsshub.app/install/#pei-zhi-bu-fen-rss-mo-kuai-pei-zhi">relevant config</a>');
+    //     throw Error('Instagram RSS is disabled due to the lack of <a href="https://docs.rsshub.app/deploy/config#route-specific-configurations">relevant config</a>');
     // }
     const availableCategories = ['user', 'tags'];
     const { category, key } = ctx.req.param();
     const { cookie } = config.instagram;
     if (!availableCategories.includes(category)) {
-        throw new Error('Such feed is not supported.');
+        throw new InvalidParameterError('Such feed is not supported.');
     }
 
     let cookieJar = await cache.get('instagram:cookieJar');
@@ -31,7 +60,7 @@ export default async (ctx) => {
     }
 
     if (!wwwClaimV2 && cookie && !(await checkLogin(cookieJar, cache))) {
-        throw new Error('Invalid cookie');
+        throw new ConfigNotFoundError('Invalid cookie');
     }
 
     let feedTitle, feedLink, feedDescription, feedLogo;
@@ -76,7 +105,7 @@ export default async (ctx) => {
 
     await cache.set('instagram:cookieJar', cookieJar.toJSON(), 31_536_000);
 
-    ctx.set('data', {
+    return {
         title: feedTitle,
         link: feedLink,
         description: feedDescription,
@@ -85,5 +114,5 @@ export default async (ctx) => {
         logo: feedLogo,
         image: feedLogo,
         allowEmpty: true,
-    });
-};
+    };
+}
