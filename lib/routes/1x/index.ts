@@ -98,7 +98,7 @@ export const route: Route = {
 Fill in the field in the path with the part of the corresponding page URL after \`https://1x.com/gallery/\` or \`https://1x.com/photo/\`. Here are the examples:
 
 If you subscribe to [Abstract Awarded](https://1x.com/gallery/abstract/awarded), you should fill in the path with the part \`abstract/awarded\` from the page URL \`https://1x.com/gallery/abstract/awarded\`. In this case, the route will be [\`/1x/abstract/awarded\`](https://rsshub.app/1x/abstract/awarded).
-    
+
 If you subscribe to [Wildlife Published](https://1x.com/gallery/wildlife/published), you should fill in the path with the part \`wildlife/published\` from the page URL \`https://1x.com/gallery/wildlife/published\`. In this case, the route will be [\`/1x/wildlife/published\`](https://rsshub.app/1x/wildlife/published).
 :::`,
     categories: ['design', 'picture'],
