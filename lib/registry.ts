@@ -23,6 +23,8 @@ let namespaces: Record<
     }
 > = {};
 
+const filePathToDescription: Record<string, string> = {};
+
 switch (process.env.NODE_ENV) {
     case 'test':
     case 'production':
@@ -54,6 +56,7 @@ if (Object.keys(modules).length) {
                 namespaces[namespace],
                 content.namespace
             );
+            filePathToDescription[module] = content.namespace.description || '';
         } else if ('route' in content) {
             if (!namespaces[namespace]) {
                 namespaces[namespace] = {
@@ -74,11 +77,12 @@ if (Object.keys(modules).length) {
                     location: module.split(/[/\\]/).slice(2).join('/'),
                 };
             }
+            filePathToDescription[module] = content.route.description || '';
         }
     }
 }
 
-export { namespaces };
+export { namespaces, filePathToDescription, modules };
 
 const app = new Hono();
 for (const namespace in namespaces) {
