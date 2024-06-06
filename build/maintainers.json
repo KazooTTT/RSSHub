@@ -5664,8 +5664,7 @@
     "AgFlore"
   ],
   "/theinitium/channel/:type?/:language?": [
-    "prnake",
-    "mintyfrankie"
+    "prnake"
   ],
   "/theinitium/follow/articles/:language?": [
     "AgFlore"
