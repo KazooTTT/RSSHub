@@ -1,11 +1,11 @@
 import { Route } from '@/types';
 import { load } from 'cheerio';
-import { ofetch } from 'ofetch';
+import ofetch from '@/utils/ofetch';
 import { getData } from './utils';
 
 export const route: Route = {
     path: '/topic/:topic',
-    categories: ['new-media'],
+    categories: ['new-media', 'popular'],
     example: '/psyche/topic/therapeia',
     parameters: { topic: 'Topic' },
     radar: [

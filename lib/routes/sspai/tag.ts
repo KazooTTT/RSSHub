@@ -5,7 +5,7 @@ import { parseDate } from '@/utils/parse-date';
 
 export const route: Route = {
     path: '/tag/:keyword',
-    categories: ['new-media'],
+    categories: ['new-media', 'popular'],
     example: '/sspai/tag/apple',
     parameters: { keyword: '关键词' },
     features: {
@@ -41,7 +41,7 @@ async function handler(ctx) {
     const data = resp.data.list;
     const items = await Promise.all(
         data.map((item) => {
-            const link = `https://sspai.com/api/v1/article/info/get?id=${item.id}&view=second`;
+            const link = `https://sspai.com/api/v1/article/info/get?id=${item.id}&view=second&support_webp=true`;
             let description;
             const key = `sspai: ${item.id}`;
             return cache.tryGet(key, async () => {

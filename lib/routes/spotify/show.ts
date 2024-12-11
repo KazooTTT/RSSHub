@@ -1,11 +1,12 @@
-import { Route } from '@/types';
+import { Route, ViewType } from '@/types';
 import utils from './utils';
 import ofetch from '@/utils/ofetch';
 import { parseDate } from '@/utils/parse-date';
 
 export const route: Route = {
     path: '/show/:id',
-    categories: ['multimedia'],
+    categories: ['multimedia', 'popular'],
+    view: ViewType.Audios,
     example: '/spotify/show/5CfCWKI5pZ28U0uOzXkDHe',
     parameters: { id: 'Show ID' },
     features: {
@@ -30,8 +31,8 @@ export const route: Route = {
             source: ['open.spotify.com/show/:id'],
         },
     ],
-    name: 'Show',
-    maintainers: ['caiohsramos'],
+    name: 'Show/Podcasts',
+    maintainers: ['caiohsramos', 'pseudoyu'],
     handler,
 };
 
@@ -63,7 +64,7 @@ async function handler(ctx) {
             pubDate: parseDate(x.release_date),
             link: x.external_urls.spotify,
             itunes_item_image: x.images[0].url,
-            itunes_duration: x.duration_ms * 1000,
+            itunes_duration: x.duration_ms / 1000,
             enclosure_url: x.audio_preview_url,
             enclosure_type: 'audio/mpeg',
         })),
