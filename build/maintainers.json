@@ -608,6 +608,9 @@
     "igxlin",
     "nczitzk"
   ],
+  "/baijing/article": [
+    "p3psi-boo"
+  ],
   "/bandcamp/live": [
     "nczitzk"
   ],
@@ -3517,6 +3520,9 @@
   "/iguoguo/html5": [
     "yuxinliu-alex"
   ],
+  "/iheima/recommend": [
+    "p3psi-boo"
+  ],
   "/iiilab/": [
     "Joey"
   ],
@@ -4003,6 +4009,9 @@
   ],
   "/kuaidi100/company": [
     "NeverBehave"
+  ],
+  "/kuaishou/profile/:principalId": [
+    "GuoChen-thlg"
   ],
   "/kunchengblog/essay": [
     "nczitzk"
@@ -5461,7 +5470,7 @@
     "mintyfrankie"
   ],
   "/qbitai/category/:category": [
-    "FuryMartin"
+    "FuryMartin, Geraldxm"
   ],
   "/qbitai/tag/:tag": [
     "FuryMartin"

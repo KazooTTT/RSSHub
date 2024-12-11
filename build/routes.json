@@ -8327,6 +8327,27 @@
     "url": "www.baidu.com",
     "lang": "zh-CN"
   },
+  "baijing": {
+    "routes": {
+      "/article": {
+        "path": "/article",
+        "categories": [
+          "new-media"
+        ],
+        "example": "/baijing/article",
+        "url": "www.baijing.cn/article/",
+        "name": "资讯",
+        "maintainers": [
+          "p3psi-boo"
+        ],
+        "location": "index.ts"
+      }
+    },
+    "name": "白鲸出海",
+    "url": "baijing.cn",
+    "description": "白鲸出海",
+    "lang": "zh-CN"
+  },
   "bandcamp": {
     "routes": {
       "/live": {
@@ -42547,6 +42568,27 @@
     "url": "iguoguo.net",
     "lang": "zh-CN"
   },
+  "iheima": {
+    "routes": {
+      "/recommend": {
+        "path": "/recommend",
+        "categories": [
+          "new-media"
+        ],
+        "example": "/iheima/recommend",
+        "url": "www.iheima.com",
+        "name": "推荐",
+        "maintainers": [
+          "p3psi-boo"
+        ],
+        "location": "index.ts"
+      }
+    },
+    "name": "i黑马网",
+    "url": "www.iheima.com",
+    "description": "",
+    "lang": "zh-CN"
+  },
   "iiilab": {
     "routes": {
       "/": {
@@ -47779,6 +47821,38 @@
     },
     "name": "快递 100",
     "url": "kuaidi100.com",
+    "lang": "zh-CN"
+  },
+  "kuaishou": {
+    "routes": {
+      "/profile/:principalId": {
+        "name": "Profile",
+        "path": "/profile/:principalId",
+        "radar": [
+          {
+            "source": [
+              "kuaishou.com/profile/:principalId"
+            ],
+            "target": "/profile/:principalId"
+          }
+        ],
+        "parameters": {
+          "principalId": "用户 id, 可在主页中找到"
+        },
+        "example": "/kuaishou/profile/3xk46q9cdnvgife",
+        "maintainers": [
+          "GuoChen-thlg"
+        ],
+        "url": "kuaishou.com/profile/:principalId",
+        "description": ":::tip\nThe profile page of the user, which contains the user's information, videos, and other information.\n    :::",
+        "location": "profile.ts"
+      }
+    },
+    "name": "快手",
+    "url": "kuaishou.com",
+    "categories": [
+      "social-media"
+    ],
     "lang": "zh-CN"
   },
   "kunchengblog": {
@@ -65956,7 +66030,7 @@
         ],
         "name": "分类",
         "maintainers": [
-          "FuryMartin"
+          "FuryMartin, Geraldxm"
         ],
         "description": "| 资讯 | 数码     | 智能车 | 智库  | 活动    |\n| ---- | -------- | ------ | ----- | ------- |\n| 资讯 | ebandeng | auto   | zhiku | huodong |",
         "location": "category.ts"
