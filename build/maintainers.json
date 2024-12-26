@@ -3407,6 +3407,10 @@
   "/huggingface/blog-zh": [
     "zcf0508"
   ],
+  "/huggingface/blog": [
+    "cesaryuan",
+    "zcf0508"
+  ],
   "/huggingface/daily-papers": [
     "zeyugao"
   ],
@@ -5271,8 +5275,11 @@
   "/panewslab/topic/:id": [
     "nczitzk"
   ],
-  "/papers/:category{.+}?": [
+  "/papers/arxiv/:category{.+}?": [
     "nczitzk",
+    "Muyun99"
+  ],
+  "/papers/query/:keyword{.+}?": [
     "Muyun99"
   ],
   "/paradigm/writing": [
