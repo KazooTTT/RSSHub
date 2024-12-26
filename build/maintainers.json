@@ -1612,6 +1612,9 @@
   "/curius/links/:name": [
     "Ovler-Young"
   ],
+  "/cursor/changelog": [
+    "p3psi-boo"
+  ],
   "/cw/author/:channel": [
     "TonyRL"
   ],
@@ -4576,6 +4579,9 @@
   "/mrm/:category?": [
     "TonyRL"
   ],
+  "/msn/:market/:name/:id": [
+    "KTachibanaM"
+  ],
   "/mwm/:category?": [
     "nczitzk"
   ],
@@ -6843,6 +6849,9 @@
   ],
   "/thwiki/calendar/:before?/:after?": [
     "aether17"
+  ],
+  "/tiddlywiki/releases": [
+    "p3psi-boo"
   ],
   "/tiktok/user/:user/:iframe?": [
     "TonyRL"
