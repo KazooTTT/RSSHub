@@ -43298,6 +43298,37 @@
         "description": "支持分类：早报、评测、糖纸众测、产品",
         "location": "category.ts"
       },
+      "/digest": {
+        "path": "/digest",
+        "name": "快讯",
+        "url": "www.ifanr.com",
+        "maintainers": [
+          "nczitzk"
+        ],
+        "example": "/ifanr/digest",
+        "categories": [
+          "new-media"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "www.ifanr.comdigest"
+            ],
+            "target": "/digest"
+          }
+        ],
+        "view": 0,
+        "location": "digest.ts"
+      },
       "/index": {
         "path": "/index",
         "categories": [
@@ -95832,7 +95863,7 @@
         "view": 3,
         "example": "/youtube/user/@JFlaMusic",
         "parameters": {
-          "username": "YouTuber username with @",
+          "username": "YouTuber handle with @",
           "embed": "Default to embed the video, set to any value to disable embedding"
         },
         "features": {
@@ -95857,7 +95888,7 @@
             "target": "/user/:username"
           }
         ],
-        "name": "Channel with username",
+        "name": "Channel with user handle",
         "maintainers": [
           "DIYgod"
         ],
