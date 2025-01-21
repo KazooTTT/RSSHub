@@ -32932,13 +32932,48 @@
   },
   "geocaching": {
     "routes": {
-      "/blogs": {
-        "path": "/blogs",
+      "/blogs/:language?": {
+        "path": "/blogs/:language?",
         "categories": [
           "blog"
         ],
-        "example": "/geocaching/blogs",
-        "parameters": {},
+        "example": "/geocaching/blogs/en",
+        "parameters": {
+          "language": {
+            "description": "language",
+            "default": "en",
+            "options": [
+              {
+                "value": "en",
+                "label": "English"
+              },
+              {
+                "value": "de",
+                "label": "Deutsch"
+              },
+              {
+                "value": "fr",
+                "label": "Français"
+              },
+              {
+                "value": "es",
+                "label": "Español"
+              },
+              {
+                "value": "nl",
+                "label": "Nederlands"
+              },
+              {
+                "value": "cs",
+                "label": "Čeština"
+              },
+              {
+                "value": "all",
+                "label": "Not Specified"
+              }
+            ]
+          }
+        },
         "features": {
           "requireConfig": false,
           "requirePuppeteer": false,
@@ -32957,7 +32992,8 @@
         ],
         "name": "Official Blogs",
         "maintainers": [
-          "HankChow"
+          "HankChow",
+          "Konano"
         ],
         "url": "geocaching.com/blog/",
         "location": "blogs.ts"
@@ -65862,6 +65898,54 @@
         ],
         "view": 0,
         "location": "column.ts"
+      },
+      "/event/:category?": {
+        "path": "/event/:category?",
+        "name": "活动",
+        "url": "www.oschina.net",
+        "maintainers": [
+          "nczitzk"
+        ],
+        "example": "/oschina/event",
+        "parameters": {
+          "category": "分类，默认为 `latest`，即最新活动，可在对应分类页 URL 中找到"
+        },
+        "description": ":::tip\n若订阅 [强力推荐](https://www.oschina.net/event?tab=recommend)，网址为 `https://www.oschina.net/event?tab=recommend`，请截取 `https://www.oschina.net/event?tab=` 到末尾的部分 `recommend` 作为 `category` 参数填入，此时目标路由为 [`/oschina/event/recommend`](https://rsshub.app/oschina/event/recommend)。\n:::\n\n| 强力推荐  | 最新活动 |\n| --------- | -------- |\n| recommend | latest   |\n",
+        "categories": [
+          "programming"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "www.oschina.net"
+            ]
+          },
+          {
+            "title": "强力推荐",
+            "source": [
+              "www.oschina.net"
+            ],
+            "target": "/event/recommend"
+          },
+          {
+            "title": "最新活动",
+            "source": [
+              "www.oschina.net"
+            ],
+            "target": "/event/latest"
+          }
+        ],
+        "view": 0,
+        "location": "event.ts"
       },
       "/news/:category?": {
         "path": "/news/:category?",
